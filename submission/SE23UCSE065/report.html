@@ -145,25 +145,26 @@
   <p style="max-width:640px">Follow the product path — <b>why Synchrony → what PS-3 asks → how we answer → how one decision is made → how it is governed → how to run it</b>. Every claim points to code you can open.</p>
   <div class="grid2">
     <div class="toc">
-      <a><span><b>01</b> &nbsp; Executive summary</span><span>3</span></a>
-      <a><span><b>02</b> &nbsp; Why Synchrony · Business framing</span><span>4</span></a>
-      <a><span><b>03</b> &nbsp; PS-3 deconstructed</span><span>5</span></a>
-      <a><span><b>04</b> &nbsp; Traceability matrix</span><span>6</span></a>
-      <a><span><b>05</b> &nbsp; System architecture</span><span>7</span></a>
-      <a><span><b>06</b> &nbsp; Stack & integration</span><span>8</span></a>
-      <a><span><b>07</b> &nbsp; Data model</span><span>9</span></a>
-      <a><span><b>08</b> &nbsp; Decision engine</span><span>10</span></a>
-      <a><span><b>09</b> &nbsp; Evidence & vector pipeline</span><span>11</span></a>
-      <a><span><b>10</b> &nbsp; Security & ops</span><span>12</span></a>
-      <a><span><b>11</b> &nbsp; API reference</span><span>13</span></a>
-      <a><span><b>12</b> &nbsp; Frontend & design system</span><span>14</span></a>
-      <a><span><b>13</b> &nbsp; Product walkthrough</span><span>15–16</span></a>
-      <a><span><b>14</b> &nbsp; Explainability & comparisons</span><span>17</span></a>
-      <a><span><b>15</b> &nbsp; Iteration · what shipped</span><span>18</span></a>
-      <a><span><b>16</b> &nbsp; Responsible AI & governance</span><span>19</span></a>
-      <a><span><b>17</b> &nbsp; Build & run</span><span>20</span></a>
-      <a><span><b>18</b> &nbsp; Roadmap</span><span>21</span></a>
-      <a><span><b>19</b> &nbsp; Submission</span><span>22</span></a>
+      <a><span><b>01</b> &nbsp; Executive summary</span><span>§01</span></a>
+      <a><span><b>02</b> &nbsp; Why Synchrony · Business framing</span><span>§02</span></a>
+      <a><span><b>03</b> &nbsp; PS-3 deconstructed</span><span>§03</span></a>
+      <a><span><b>04</b> &nbsp; Traceability matrix</span><span>§04</span></a>
+      <a><span><b>05</b> &nbsp; System architecture</span><span>§05</span></a>
+      <a><span><b>06</b> &nbsp; Stack & integration</span><span>§06</span></a>
+      <a><span><b>07</b> &nbsp; Data model</span><span>§07</span></a>
+      <a><span><b>08</b> &nbsp; Decision engine</span><span>§08</span></a>
+      <a><span><b>09</b> &nbsp; Evidence & vector pipeline</span><span>§09</span></a>
+      <a><span><b>10</b> &nbsp; Security & ops</span><span>§10</span></a>
+      <a><span><b>11</b> &nbsp; API reference</span><span>§11</span></a>
+      <a><span><b>12</b> &nbsp; Frontend & design system</span><span>§12</span></a>
+      <a><span><b>13</b> &nbsp; Product walkthrough</span><span>§13</span></a>
+      <a><span><b>14</b> &nbsp; Explainability & comparisons</span><span>§14</span></a>
+      <a><span><b>15</b> &nbsp; Iteration · what shipped</span><span>§15</span></a>
+      <a><span><b>16</b> &nbsp; Responsible AI & governance</span><span>§16</span></a>
+      <a><span><b>17</b> &nbsp; Build & run</span><span>§17</span></a>
+      <a><span><b>18</b> &nbsp; Repository map</span><span>§18</span></a>
+      <a><span><b>19</b> &nbsp; Roadmap</span><span>§19</span></a>
+      <a><span><b>20</b> &nbsp; Submission</span><span>§20</span></a>
     </div>
     <div>
       <div class="box blue"><h3>Reviewer shortcut</h3><p style="font-size:9.5px">Short on time? Read <b>§1 → §4 → §5 → §8 → §14 → §16</b>. Those six pages give you the full decision trace, architecture, and governance story in under five minutes.</p></div>
@@ -172,6 +173,29 @@
     </div>
   </div>
   <div class="foot"><span>SE23UCSE065 · NexCredit AI</span><span>2 — How to read</span></div>
+</section>
+
+<!-- 00 DOCUMENT CONTROL -->
+<section class="page">
+  <div class="eyebrow">00 — Document control</div>
+  <h1>Scope, evidence &amp; review guide</h1>
+  <div class="rule accent"></div>
+  <p>This document is the technical report for <b>NexCredit AI</b>, submitted for Synchrony Hackathon Problem Statement 3. It is written for a reviewer who needs to understand not only what the interface shows, but also why the system was designed this way, which parts are implemented, and where the prototype deliberately stops.</p>
+  <div class="grid2">
+    <div class="box blue"><h3>0.1 Purpose</h3><p>Describe the product decision, the engineering choices behind it, and the evidence that the repository contains a runnable implementation rather than a static mock-up.</p></div>
+    <div class="box"><h3>0.2 Intended audience</h3><p>Synchrony hiring reviewers, credit-operations stakeholders, engineers, and responsible-AI reviewers who may inspect the source after the demo.</p></div>
+    <div class="box"><h3>0.3 Evidence basis</h3><p>Claims are grounded in the current source tree, automated tests, the recorded walkthrough, and the generated roll-numbered submission archive. Synthetic applicant data is used throughout.</p></div>
+    <div class="box blue"><h3>0.4 Reading convention</h3><p>“Shipped” means implemented in the current code path. “Optional” means disabled unless configured. “Roadmap” means a production extension, not a claim about the current demo.</p></div>
+  </div>
+  <h3>0.5 Review sequence</h3>
+  <ol>
+    <li><b>Start with §01–§04:</b> understand the business problem and map each requirement to a feature and source file.</li>
+    <li><b>Continue with §05–§11:</b> follow one application through the API, policy, evidence, security, and audit layers.</li>
+    <li><b>Finish with §12–§20:</b> inspect the workbench, governance boundaries, local run path, repository structure, roadmap, and final deliverables.</li>
+  </ol>
+  <div class="warn amber"><b>Important boundary:</b> this is a decision-support prototype, not a production credit model. It does not claim bureau access, trained ML, autonomous agents, device tracking, or production regulatory approval. Those boundaries are explicit so the implementation remains credible.</div>
+  <div class="shot"><img src="nexcredit-underwriting-preview.gif" alt="Animated underwriting preview showing the decision detail workflow."/><div class="shot-cap"><b>Workflow preview.</b> The same animated GIF is available in the Drive videos folder and the ZIP; the PDF renderer captures a portable representative frame.</div></div>
+  <div class="foot"><span>SE23UCSE065 · NexCredit AI</span><span>0 — Document control</span></div>
 </section>
 
 <!-- 01 EXEC SUMMARY -->
