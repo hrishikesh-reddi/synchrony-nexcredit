@@ -38,7 +38,16 @@
 
 ### Docs / submission (done)
 - Master `README.md` with full file-by-file map, API table, responsible-AI posture, run steps.
+- `docs/product-vision.md` — problem statement (sell), Synchrony PRISM mapping, SaaS expansion table
+  (KYC/bureau/Account-Aggregator/device intel/DPDP), frontend improvements, demo-video script.
+  Use for README overview + pitch.
 - `submission/SE23UCSE065.zip` regenerated (363K) from current code + roll-numbered docs.
+
+### In progress (separate autonomous terminal/agent)
+- **Screenshots into README**: an agent will boot pgvector (5434) + backend (8081, `DB_PASSWORD=admin`)
+  + frontend (`REACT_APP_API_BASE_URL=http://localhost:8081`), capture landing/workbench/dashboard/
+  review-queue/audit-trail/evidence-search/decision PNGs into `docs/screenshots/`, and add a
+  `## Screenshots` section to `README.md`. Do NOT duplicate this in another terminal.
 
 ## Known deviations from the original task checklist (deliberate)
 - **Ollama not used**; LLM layer uses OpenAI-compatible API (optional) + local rule-based fallback.
