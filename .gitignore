@@ -55,3 +55,6 @@ yarn-debug.log*
 yarn-error.log*
 /.changelog
 .npm/
+
+# frontend-maven-plugin downloaded Node runtime (build artifact)
+src/frontend/node/
