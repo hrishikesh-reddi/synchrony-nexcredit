@@ -1,45 +1,129 @@
 #!/usr/bin/env bash
-# Package the Synchrony hackathon submission as a single named ZIP.
-# All submitted files are named using ONLY the roll number (SE23UCSE065).
-# Usage: bash build-submission.sh
+# Build the Synchrony submission archive without generated data or secrets.
+# The externally submitted files remain roll-number-only:
+#   submission/SE23UCSE065.zip
+#   submission/SE23UCSE065.pdf (prepared separately, copied into the ZIP if present)
 set -euo pipefail
+export LC_ALL=C
+export LANG=C
 
 ROLL="SE23UCSE065"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 OUT="$ROOT/submission"
-SRC="$OUT/$ROLL"
+SUBMISSION_SOURCES="$OUT/$ROLL"
+DEMO="$SUBMISSION_SOURCES/$ROLL-demo.mp4"
+FINAL_PDF="$OUT/$ROLL.pdf"
 ZIP="$OUT/$ROLL.zip"
+REPRODUCIBLE_TIMESTAMP="200001010000"
 
-echo "==> Building submission bundle for $ROLL"
+fail() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
 
-# 1) Refresh the README into the named folder (the rest of the written
-#    companion docs are maintained directly in submission/$ROLL/).
-mkdir -p "$SRC"
-cp "$ROOT/README.md" "$SRC/$ROLL-readme.md"
+validate_demo_video() {
+  local video="$1"
 
-# 2) Place the recorded demo video here if present (name it exactly):
-#    submission/SE23UCSE065/SE23UCSE065-demo.mp4
-if [ -f "$SRC/$ROLL-demo.mp4" ]; then
-  echo "    found demo video: $ROLL-demo.mp4"
+  [[ -s "$video" ]] || fail "required demo video is missing or empty: $video"
+
+  if command -v ffprobe >/dev/null 2>&1; then
+    local format_name video_stream duration
+    format_name="$(ffprobe -v error -show_entries format=format_name \
+      -of default=noprint_wrappers=1:nokey=1 "$video" 2>/dev/null || true)"
+    video_stream="$(ffprobe -v error -select_streams v:0 \
+      -show_entries stream=codec_type -of default=noprint_wrappers=1:nokey=1 \
+      "$video" 2>/dev/null || true)"
+    duration="$(ffprobe -v error -show_entries format=duration \
+      -of default=noprint_wrappers=1:nokey=1 "$video" 2>/dev/null || true)"
+
+    [[ "$format_name" == *mp4* || "$format_name" == *mov* ]] || \
+      fail "demo is not a valid MP4 video: $video"
+    [[ "$video_stream" == "video" ]] || \
+      fail "demo is not a valid MP4 video (no video stream): $video"
+    awk -v value="$duration" 'BEGIN { exit !(value + 0 > 0) }' || \
+      fail "demo is not a valid MP4 video (invalid duration): $video"
+  else
+    local mime_type
+    mime_type="$(file -b --mime-type "$video" 2>/dev/null || true)"
+    [[ "$mime_type" == "video/mp4" ]] || \
+      fail "demo is not a valid MP4 video: $video"
+  fi
+}
+
+[[ -f "$ROOT/README.md" ]] || fail "project README is missing: $ROOT/README.md"
+[[ -d "$SUBMISSION_SOURCES" ]] || \
+  fail "submission source directory is missing: $SUBMISSION_SOURCES"
+
+validate_demo_video "$DEMO"
+
+command -v rsync >/dev/null 2>&1 || fail "rsync is required to build the submission"
+command -v zip >/dev/null 2>&1 || fail "zip is required to build the submission"
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+BUNDLE="$TMP/bundle"
+CODE="$BUNDLE/$ROLL-code"
+mkdir -p "$BUNDLE" "$CODE" "$OUT"
+
+echo "==> Building verified submission bundle for $ROLL"
+
+# Copy the curated submission companions. The README is overwritten below with
+# the repository's current README so a stale maintained copy cannot be shipped.
+while IFS= read -r -d '' companion; do
+  cp "$companion" "$BUNDLE/$(basename "$companion")"
+done < <(find "$SUBMISSION_SOURCES" -maxdepth 1 -type f \
+  ! -name "$ROLL-demo.mp4" -print0)
+cp "$ROOT/README.md" "$BUNDLE/$ROLL-readme.md"
+cp "$DEMO" "$BUNDLE/$ROLL-demo.mp4"
+
+if [[ -f "$FINAL_PDF" ]]; then
+  cp "$FINAL_PDF" "$BUNDLE/$ROLL.pdf"
+  echo "    included final report: $FINAL_PDF"
 else
-  echo "    NOTE: add your recording as $SRC/$ROLL-demo.mp4 before zipping"
+  echo "    NOTE: final report not found at $FINAL_PDF; ZIP will contain its Markdown source only"
 fi
 
-# 3) Build the repo snapshot (exclude build/node_modules/.git/.env)
-echo "==> Creating repo snapshot (excluding build artifacts)"
-TMP="$(mktemp -d)"
-SNAP="$TMP/$ROLL-code"
-mkdir -p "$SNAP"
-rsync -a --exclude='.git' --exclude='node_modules' --exclude='build' \
-      --exclude='target' --exclude='.env' --exclude='*.class' \
-      "$ROOT/" "$SNAP/"
+echo "==> Creating current source snapshot"
+rsync -a --safe-links \
+  --include='.env.example' \
+  --exclude='.git' \
+  --exclude='.github-cache' \
+  --exclude='.idea' \
+  --exclude='.DS_Store' \
+  --exclude='.env' \
+  --exclude='.env.*' \
+  --exclude='*.pem' \
+  --exclude='*.key' \
+  --exclude='*.p12' \
+  --exclude='*.jks' \
+  --exclude='credentials*.json' \
+  --exclude='secrets' \
+  --exclude='submission' \
+  --exclude='uploads' \
+  --exclude='node_modules' \
+  --exclude='src/frontend/node' \
+  --exclude='build' \
+  --exclude='dist' \
+  --exclude='target' \
+  --exclude='coverage' \
+  --exclude='*.class' \
+  --exclude='*.log' \
+  "$ROOT/" "$CODE/"
 
-# 4) Zip: the demo video + sources + code snapshot
+# Fixed timestamps, stable path order, and stripped ZIP metadata make repeated
+# builds from identical content byte-for-byte reproducible.
+find "$BUNDLE" -type f -exec touch -t "$REPRODUCIBLE_TIMESTAMP" {} +
+
 echo "==> Writing $ZIP"
 rm -f "$ZIP"
-( cd "$SRC" && zip -r -q "$ZIP" . )
-( cd "$TMP" && zip -r -q "$ZIP" "$ROLL-code" )
+(
+  cd "$BUNDLE"
+  find . -type f -print | LC_ALL=C sort | zip -X -q "$ZIP" -@
+)
+
+[[ -s "$ZIP" ]] || fail "ZIP creation failed: $ZIP"
+validate_demo_video "$DEMO"
 
 echo "==> Done: $ZIP"
-echo "    Submit this single ZIP to Technologyinterns@syf.com before 12:00 PM IST."
-echo "    Reminder: also email the PDF (export $ROLL.pdf-source.md -> $ROLL.pdf)."
+echo "    Validated video: $ROLL-demo.mp4"
+echo "    Submit $ROLL.zip and $ROLL.pdf to Technologyinterns@syf.com."
