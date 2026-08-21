@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <style>
+  @page { size:A4; margin:0; }
   :root { --ink:#0c1f33; --body:#36485c; --muted:#7a8aa0; --accent:#1f6feb; --line:#e6ebf2; --soft:#eef4ff; --code:#0f2740; }
   * { box-sizing: border-box; }
   body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--body); font-size:10.6px; line-height:1.55; }
@@ -54,7 +55,7 @@
   <div class="meta">
     <strong>Candidate:</strong> Gavinolla Hrishikesh Reddy (SE23UCSE065), Mahindra University<br/>
     <strong>Stack:</strong> Java 17 · Spring Boot 3.3.5 · React 18 · PostgreSQL 16 + pgvector · Apache Tika 2.9.2<br/>
-    <strong>Artefacts:</strong> SE23UCSE065.pdf (this) · SE23UCSE065.mp4 (demo) · SE23UCSE065.zip (source)
+    <strong>Artefacts:</strong> SE23UCSE065.pdf (this report) · SE23UCSE065.zip (recorded demo + source)
   </div>
 </section>
 
@@ -64,8 +65,8 @@
   <h1>Executive summary</h1>
   <p>NexCredit AI is a working full-stack prototype that decides credit for applicants with no traditional bureau history, using consented alternative-data signals, document evidence, and a deterministic rules engine — not a trained model. The backend is a Spring Boot 3 service with a PostgreSQL + pgvector store; the frontend is a React 18 workbench with five connected views, a command palette, and an application drawer.</p>
   <div class="kpi-row">
-    <div class="kpi"><b>2</b><span>tiers (Spring Boot + React)</span></div>
-    <div class="kpi"><b>11</b><span>REST endpoints</span></div>
+    <div class="kpi"><b>3</b><span>tiers (React + API + data)</span></div>
+    <div class="kpi"><b>12</b><span>REST endpoints</span></div>
     <div class="kpi"><b>5</b><span>JPA entities</span></div>
     <div class="kpi"><b>0</b><span>models trained</span></div>
   </div>
@@ -81,7 +82,7 @@
     <li>Ingests alternative-data signals (mobile usage, transaction behaviour, social signal) plus income/employment.</li>
     <li>Runs a fixed, banded scoring function and explains the result with factor-level reasoning.</li>
     <li>Routes uncertain or high-fraud cases to a human reviewer (never a silent auto-yes).</li>
-    <li>Attaches parsed document evidence and writes every action to an immutable audit ledger.</li>
+    <li>Attaches parsed document evidence and appends decision and review events to an audit history.</li>
   </ul>
   <div class="box"><h3>Hard requirement we honour</h3><p>A bias guardrail escalates any age-based rejection (&lt;21) to human review instead of auto-declining, so the model cannot reject on age alone.</p></div>
 </section>
@@ -92,7 +93,7 @@
   <h1>System architecture</h1>
   <p>Classic three-tier web app. The React SPA calls a stateless Spring Boot API secured by JWT; the API persists to PostgreSQL (with a pgvector extension for semantic evidence search) and parses uploads with Apache Tika.</p>
   <div class="arch">
-    <div class="box blue"><h3>① React 18 SPA</h3><p>Workbench (5 views), application drawer, ⌘K command palette, detail drawer. Talks HTTPS with a bearer token via <code>Client.js</code>.</p></div>
+    <div class="box blue"><h3>① React 18 SPA</h3><p>Workbench (5 views), application drawer, ⌘K command palette, detail drawer. Uses a bearer token through <code>Client.js</code>; production transport would be HTTPS.</p></div>
     <div class="box"><h3>② Spring Boot 3 API</h3><p>REST controllers → services. Hosts <code>CreditUnderwritingService</code> (deterministic), <code>DocumentEvidenceService</code> (Tika), <code>VectorStore</code> (pgvector), JWT security.</p></div>
     <div class="box"><h3>③ PostgreSQL 16 + pgvector</h3><p>Tables: <code>credit_applications</code>, <code>audit_logs</code>, <code>document_evidence</code>, <code>evidence_embedding(vector)</code>. DDL auto-update.</p></div>
     <div class="box blue"><h3>④ Apache Tika 2.9.2</h3><p>Parses uploaded proofs; text is embedded (remote or local) and indexed for semantic + text search.</p></div>
@@ -104,7 +105,7 @@
     <div class="stage"><div class="n">3</div><h4>Analyze</h4><p><code>POST /api/credit/analyze</code> → decision</p></div>
     <div class="stage"><div class="n">4</div><h4>Review</h4><p><code>POST /api/credit/review/{id}</code></p></div>
     <div class="stage"><div class="n">5</div><h4>Evidence</h4><p>upload → Tika → pgvector → search</p></div>
-    <div class="stage"><div class="n">6</div><h4>Audit</h4><p>every event → <code>audit_logs</code></p></div>
+    <div class="stage"><div class="n">6</div><h4>Audit</h4><p>decision/review → <code>audit_logs</code></p></div>
   </div>
 </section>
 
@@ -117,7 +118,7 @@
     <tr><th>Component</th><th>Version / lib</th><th>Role &amp; why it was integrated</th></tr>
     <tr><td>Backend framework</td><td>Spring Boot 3.3.5 (Java 17)</td><td>REST + JPA + Security in one opinionated stack; fast to audit.</td></tr>
     <tr><td>Persistence</td><td>Spring Data JPA · PostgreSQL driver</td><td>Relational store for applications/audit; sequences for IDs.</td></tr>
-    <tr><td>Vector search</td><td>pgvector 0.1.6</td><td>Cosine similarity over embeddings in the same DB — no separate vector service.</td></tr>
+    <tr><td>Vector search</td><td>pgvector 0.1.6</td><td>L2-distance retrieval over embeddings in the same DB — no separate vector service.</td></tr>
     <tr><td>Document parsing</td><td>Apache Tika 2.9.2</td><td>Extract text from income/ID/utility proofs for evidence search.</td></tr>
     <tr><td>Security</td><td>Spring Security · JJWT 0.12.6</td><td>Stateless JWT auth; in-memory users from config (no external IdP).</td></tr>
     <tr><td>Optional AI</td><td>OpenAI-compatible REST</td><td>Disabled by default. Can embed + draft explanations; falls back to local hashing embed + rule text.</td></tr>
@@ -399,7 +400,7 @@ POST /api/credit/evidence/search { "query": "...", "k": 5 }
 ./mvnw spring-boot:run            # or: ./mvnw clean package
 ./mvnw test                       # JUnit (backend)
 
-# Frontend (port 3000)
+# Frontend (local demo port 3001)
 cd src/frontend
 npm install
 npm start                         # or: CI=true npm run build
@@ -408,11 +409,12 @@ npm test                          # App.test.js + NewComponents.test.js
 # Env (all have safe dev defaults)
 DB_PASSWORD, JWT_SECRET, NEXCREDIT_AI_ENABLED=false,
 NEXCREDIT_VECTOR_ENABLED=true, OPENAI_API_KEY (optional)</pre>
-  <p>Demo account (auto-used by the UI): <code>underwriter / underwwriter123</code>. Seed data: 13 applicants + 12 audit entries via <code>CreditSeedData</code>.</p>
+  <p>Demo account (auto-used by the UI): <code>underwriter / underwriter123</code>. Seed data: 13 applicants + 12 audit entries via <code>CreditSeedData</code>.</p>
   <h3>Submission build</h3>
-  <pre>zip -r submission/SE23UCSE065.zip . \
-  -x ".git" "*/node_modules/*" "*/target/*" "*/build/*" "*.log"
-# → 30 MB, 145 files, excludes build artefacts</pre>
+  <pre># Validates the real MP4, excludes secrets/build artefacts,
+# and produces the roll-numbered archive.
+bash build-submission.sh
+# → submission/SE23UCSE065.zip</pre>
 </section>
 
 <!-- 16. FUTURE -->
@@ -434,8 +436,7 @@ NEXCREDIT_VECTOR_ENABLED=true, OPENAI_API_KEY (optional)</pre>
   <table>
     <tr><th>Artefact</th><th>Description</th></tr>
     <tr><td>SE23UCSE065.pdf</td><td>This engineering report.</td></tr>
-    <tr><td>SE23UCSE065.mp4</td><td>Recorded walkthrough of the live workbench.</td></tr>
-    <tr><td>SE23UCSE065.zip</td><td>Source (frontend + backend), build artefacts excluded.</td></tr>
+    <tr><td>SE23UCSE065.zip</td><td>Recorded MP4 walkthrough plus current frontend/backend source; secrets and build artefacts excluded.</td></tr>
   </table>
   <div class="foot">NexCredit AI · Synchrony Hackathon 2026 · PS3 — contextual credit decisioning for New-to-Credit / thin-file applicants. Deterministic · explainable · human-in-the-loop. Spring Boot 3.3.5 · React 18 · PostgreSQL 16 + pgvector · Apache Tika 2.9.2.</div>
 </section>

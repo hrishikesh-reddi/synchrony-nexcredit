@@ -36,6 +36,18 @@ NexCredit AI shows how permitted alternative-data signals (mobile engagement, tr
 ### Evidence (semantic document) search
 ![Evidence search](docs/screenshots/08-evidence-search.png)
 
+### Recorded walkthrough snapshots
+
+These frames are captured directly from the submitted demo video and show the product story end to end: contextual intake, decision operations, evidence intelligence, and governance.
+
+![NexCredit contextual landing page](docs/screenshots/video-landing-hero.png)
+
+![Command Center with decision detail](docs/screenshots/video-workbench.png)
+
+![Evidence Intelligence](docs/screenshots/video-governance.png)
+
+![Portfolio and audit activity](docs/screenshots/video-evidence.png)
+
 ## 1. Problem & approach (short)
 
 Traditional underwriting leans on formal credit history, which excludes NTC / thin-file applicants. NexCredit combines consented alternative signals with a transparent decision policy, flags uncertainty or risk, and routes to a human reviewer with the evidence needed to make the final call. It is a **governed underwriting workbench**, not an autonomous approval bot.
