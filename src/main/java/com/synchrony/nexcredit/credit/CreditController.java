@@ -107,7 +107,7 @@ public class CreditController {
 
     @PostMapping("/explanation")
     public ExplanationResponse explanation(@Valid @RequestBody CreditApplication application) {
-        CreditDecision decision = underwritingService.analyze(application);
+        CreditDecision decision = underwritingService.evaluate(application);
         return explanationService.explain(application, decision);
     }
 }

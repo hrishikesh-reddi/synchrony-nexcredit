@@ -18,6 +18,26 @@ public class CreditUnderwritingService {
     }
 
     public CreditDecision analyze(CreditApplication app) {
+        CreditDecision creditDecision = evaluate(app);
+        String decision = creditDecision.getCreditDecision();
+        int confidence = creditDecision.getConfidenceScore();
+        String reasoning = creditDecision.getReasoning();
+        String fraudRisk = creditDecision.getFraudRisk();
+
+        app.setCreditDecision(decision);
+        app.setConfidenceScore(confidence);
+        app.setReasoning(reasoning);
+        app.setFraudRisk(fraudRisk);
+        app.setReviewStatus(resolveReviewStatus(app, decision, confidence, fraudRisk));
+        CreditApplication savedApplication = applicationRepository.save(app);
+        creditDecision.setApplicationId(savedApplication.getId());
+        auditLogService.record(app, creditDecision);
+        LOGGER.info("underwriting_decision applicationId={} decision={} confidence={} fraudRisk={} reviewStatus={}",
+                savedApplication.getId(), decision, confidence, fraudRisk, savedApplication.getReviewStatus());
+        return creditDecision;
+    }
+
+    public CreditDecision evaluate(CreditApplication app) {
         int total = app.getMobileUsageScore()
                 + app.getTransactionBehaviorScore()
                 + app.getSocialSignalScore();
@@ -56,18 +76,7 @@ public class CreditUnderwritingService {
             confidence = 60;
         }
 
-        CreditDecision creditDecision = new CreditDecision(decision, confidence, reasoning, fraudRisk);
-        app.setCreditDecision(decision);
-        app.setConfidenceScore(confidence);
-        app.setReasoning(reasoning);
-        app.setFraudRisk(fraudRisk);
-        app.setReviewStatus(resolveReviewStatus(app, decision, confidence, fraudRisk));
-        CreditApplication savedApplication = applicationRepository.save(app);
-        creditDecision.setApplicationId(savedApplication.getId());
-        auditLogService.record(app, creditDecision);
-        LOGGER.info("underwriting_decision applicationId={} decision={} confidence={} fraudRisk={} reviewStatus={}",
-                savedApplication.getId(), decision, confidence, fraudRisk, savedApplication.getReviewStatus());
-        return creditDecision;
+        return new CreditDecision(decision, confidence, reasoning, fraudRisk);
     }
 
     private ReviewStatus resolveReviewStatus(CreditApplication app, String decision, int confidence, String fraudRisk) {
