@@ -11,42 +11,17 @@ NexCredit AI shows how permitted alternative-data signals (mobile engagement, tr
 
 ---
 
-## Screenshots
+## Product walkthrough
 
-> Captured from a live local run (Spring Boot on `:8081`, React on `:3001`, pgvector on `:5435`).
-
-### Landing page
-![Landing page](docs/screenshots/01-landing.png)
-
-### Multi-page credit operations workspace
-![Underwriter workbench](docs/screenshots/03-workbench.png)
-
-### New credit application form
-![New credit application form](docs/screenshots/05-application-form.png)
-
-### Decision result (decision, confidence, fraud-risk, stage trace)
-![Decision result](docs/screenshots/04-decision.png)
-
-### Human review queue
-![Human review queue](docs/screenshots/06-review-queue.png)
-
-### Decision audit trail
-![Decision audit trail](docs/screenshots/07-audit-trail.png)
-
-### Evidence (semantic document) search
-![Evidence search](docs/screenshots/08-evidence-search.png)
-
-### Recorded walkthrough snapshots
-
-These frames are captured directly from the submitted demo video and show the product story end to end: contextual intake, decision operations, evidence intelligence, and governance.
+These frames are captured directly from the submitted demo video and show the current product surface: contextual intake, decision operations, evidence intelligence, and governance.
 
 ![NexCredit contextual landing page](docs/screenshots/video-landing-hero.png)
 
 ![Command Center with decision detail](docs/screenshots/video-workbench.png)
 
-![Evidence Intelligence](docs/screenshots/video-governance.png)
-
 ![Portfolio and audit activity](docs/screenshots/video-evidence.png)
+
+![Evidence Intelligence](docs/screenshots/video-governance.png)
 
 ## 1. Problem & approach (short)
 
