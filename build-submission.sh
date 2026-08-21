@@ -37,9 +37,8 @@ rsync -a --exclude='.git' --exclude='node_modules' --exclude='build' \
 # 4) Zip: the demo video + sources + code snapshot
 echo "==> Writing $ZIP"
 rm -f "$ZIP"
-zip -r -q "$ZIP" -C "$SRC" .
-cd "$TMP" && zip -r -q "$ZIP" "$ROLL-code"
-cd "$ROOT"
+( cd "$SRC" && zip -r -q "$ZIP" . )
+( cd "$TMP" && zip -r -q "$ZIP" "$ROLL-code" )
 
 echo "==> Done: $ZIP"
 echo "    Submit this single ZIP to Technologyinterns@syf.com before 12:00 PM IST."
