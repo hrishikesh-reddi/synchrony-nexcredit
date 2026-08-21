@@ -42,6 +42,8 @@
   .kpi-row { display:flex; gap:12px; margin:10px 0; } .kpi { flex:1; border:1px solid var(--line); border-radius:10px; padding:12px; background:#fff; } .kpi b{display:block;font-size:18px;color:var(--ink);} .kpi span{font-size:9.5px;color:var(--muted);}
   .foot { margin-top:14px; font-size:9px; color:var(--muted); border-top:1px solid var(--line); padding-top:8px; }
   .tree { font-family:"SF Mono",Menlo,Consolas,monospace; font-size:9px; line-height:1.45; background:#0f2740; color:#cfe0f5; border-radius:8px; padding:12px 14px; white-space:pre; overflow:auto; }
+  .preview-strip { width:100%; display:block; border:1px solid var(--line); border-radius:9px; margin:12px 0 5px; }
+  .caption { color:var(--muted); font-size:9px; line-height:1.4; }
 </style>
 </head>
 <body>
@@ -71,6 +73,22 @@
     <div class="kpi"><b>0</b><span>models trained</span></div>
   </div>
   <div class="warn">Scope statement: the decisioning is <strong>deterministic and inspectable</strong>. The "stages" in the UI are a workflow visualisation, not autonomous agents. An optional OpenAI-compatible layer can draft explanations/embeddings but is <strong>disabled by default</strong> (property <code>nexcredit.ai.enabled=false</code>); the demo runs with no external model.</div>
+</section>
+
+<!-- 2. READER MAP -->
+<section class="page">
+  <div class="eyebrow">Reader map</div>
+  <h1>How to read this project</h1>
+  <p>This report follows the same path as the product: <strong>problem → platform → decision → evidence → delivery</strong>. Each section answers one reviewer question and points to the code that implements it.</p>
+  <div class="grid2">
+    <div class="box blue"><h3>01 · Understand the problem</h3><p>The problem statement and architecture explain the NTC/thin-file gap, the selected PB-3 objective, and the system response.</p></div>
+    <div class="box"><h3>02 · Understand the platform</h3><p>The stack and integration sections map React, Spring Boot, PostgreSQL, pgvector, Tika, security, and the service boundaries.</p></div>
+    <div class="box"><h3>03 · Trace one decision</h3><p>The data, policy, evidence, governance, and API sections show exactly how an application becomes a reviewable decision.</p></div>
+    <div class="box blue"><h3>04 · Verify the delivery</h3><p>The final sections cover the frontend, explainability, truthfulness boundaries, run instructions, repository map, roadmap, and submission contents.</p></div>
+  </div>
+  <h3>Five-second workflow preview</h3>
+  <img class="preview-strip" src="video-five-second-preview.png" alt="Three frames from the demo: landing page, Command Center decision detail, and Evidence Intelligence." />
+  <div class="caption">Three representative frames from the walkthrough: product overview, underwriting decision detail, and semantic evidence search. The complete MP4 is included inside <code>SE23UCSE065.zip</code>; this static strip keeps the report portable across PDF viewers.</div>
 </section>
 
 <!-- 2. PROBLEM -->
