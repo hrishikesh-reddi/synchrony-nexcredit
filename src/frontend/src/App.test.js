@@ -1,16 +1,19 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
-import { getAuditLogs, getCreditApplications } from './Client';
+import { getAuditLogs, getCreditApplications, login } from './Client';
 
 jest.mock('./Client', () => ({
   getAllStudents: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
   getCreditApplications: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
   getAuditLogs: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
+  login: jest.fn(() => Promise.resolve({ token: 'test-token', username: 'underwriter', roles: ['UNDERWRITER'] })),
+  setAuthToken: jest.fn(),
   analyzeCreditApplication: jest.fn(),
   createCreditApplication: jest.fn(),
 }));
 
 test('introduces NexCredit before opening the live workbench', async () => {
+  login.mockResolvedValue({ token: 'test-token', username: 'underwriter', roles: ['UNDERWRITER'] });
   getCreditApplications.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
   getAuditLogs.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
   render(<App />);
