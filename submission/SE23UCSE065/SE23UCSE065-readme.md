@@ -1,113 +1,212 @@
 # NexCredit AI
 
-NexCredit AI is a real-time credit-underwriting prototype for New-to-Credit (NTC) and thin-file applicants. It shows how alternative signals—mobile engagement, transaction behaviour, social signals, declared income, and optional documents—can support an explainable credit workflow instead of relying solely on conventional history.
+> Real-time, multi-modal credit-underwriting prototype for New-to-Credit (NTC) and thin-file applicants.
+> Built for the **Synchrony Hackathon** problem statement: *Next-Gen Credit Intelligence: Building a Real-Time, Multi-Modal Underwriting Engine*.
 
-Built for the Synchrony Hackathon problem statement: **Next-Gen Credit Intelligence: Building a Real-Time, Multi-Modal Underwriting Engine**.
+NexCredit AI shows how permitted alternative-data signals (mobile engagement, transaction behaviour, income, optional documents) can support an **explainable** credit workflow, instead of a black-box approve/reject. Every decision carries a stage trace, confidence, fraud context, a bias-aware escalation path, and a per-decision audit record.
 
-## What the prototype demonstrates
+- **Candidate roll number:** SE23UCSE065
+- **Stack:** Spring Boot 3 (Java 17) + React 18 (Ant Design) + PostgreSQL + pgvector
+- **Live repo:** `https://github.com/hrishikesh-reddi/synchrony-nexcredit`
 
-- Alternative-data decisioning with confidence and fraud-risk signals.
-- An age-sensitive bias guardrail that routes a rejected under-21 applicant to review.
-- Human-review queue and per-decision audit record.
-- Optional document upload with Apache Tika text extraction, a bounded evidence preview, and a clearly labelled visual scan-preview simulation.
-- A visible decision trace: creditworthiness, fraud, decision, explanation, and audit stages.
-- NTC inclusion metrics and an illustrative conventional-model comparison.
+---
 
-The decision engine is deterministic and rule-based. This is not a production lending model and does not use live CIBIL, device, location, or external AI services. Supporting-document text is extracted locally for reviewer evidence; it does not automatically change credit eligibility.
+## 1. Problem & approach (short)
 
-## Architecture
+Traditional underwriting leans on formal credit history, which excludes NTC / thin-file applicants. NexCredit combines consented alternative signals with a transparent decision policy, flags uncertainty or risk, and routes to a human reviewer with the evidence needed to make the final call. It is a **governed underwriting workbench**, not an autonomous approval bot.
 
-```text
-React + Ant Design dashboard (role-aware UI)
-          |  HTTPS + JWT Bearer
-          v
-Spring Security (JWT authz, roles: APPLICANT/UNDERWRITER/ADMIN)
-Spring Boot REST API
-  |        |         |                   |
-  |        |         |                   +-- AI layer
-  |        |         |                        ExplanationService (LLM, guarded, fallback)
-  |        |         |                        EmbeddingService + VectorStore (pgvector semantic search)
-  |        |         +-- Audit trail + human review queue
-  |        +------------ Underwriting rules + bias guardrail
-  +--------------------- PostgreSQL (credit applications) + pgvector (evidence embeddings)
+## 2. Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| Backend | Spring Boot 3.3, Java 17, Spring MVC, Spring Data JPA, Spring Security |
+| Auth | JWT (jjwt 0.12) — stateless, role-based (APPLICANT / UNDERWRITER / ADMIN) |
+| Database | PostgreSQL 16 + **pgvector** (semantic document search) |
+| AI layer | OpenAI-compatible REST (embeddings + chat) with deterministic local fallback; **off by default** |
+| Frontend | React 18, Ant Design 5, Create React App build |
+| Infra | Docker Compose (postgres + backend + frontend), Maven wrapper |
+
+## 3. Repository layout
+
+```
+NexCredit-AI/
+├── pom.xml                      # Maven build: Spring Boot, security, pgvector, jjwt, tests
+├── Dockerfile                   # Multi-stage backend image (Maven build -> JRE run)
+├── docker-compose.yml           # postgres(pgvector) + backend + frontend
+├── build-submission.sh          # Packages submission/SE23UCSE065 as a roll-numbered ZIP
+├── .env.example                 # Example Docker env (POSTGRES_PASSWORD)
+├── .github/workflows/build.yml  # CI: JDK 17 + ./mvnw test
+├── docs/                        # Long-form technical & hackathon narrative docs
+├── submission/                  # SE23UCSE065/ — the graded submission package (ID-named)
+├── src/
+│   ├── main/
+│   │   ├── java/com/synchrony/nexcredit/   # Backend source (package com.synchrony.nexcredit)
+│   │   └── resources/application.properties # Datasource, security, AI, vector config
+│   ├── test/java/com/synchrony/nexcredit/  # JUnit 5 tests (13, all green)
+│   └── frontend/                          # React app (src/frontend/src)
+└── (gitignored) node_modules/ target/ build/ uploads/ .env
 ```
 
-## Security & AI layers (implemented)
+## 4. File-by-file guide
 
-**Authentication / authorization** — Spring Security with JWT (`security/*`). Stateless,
-role-based access: `APPLICANT`, `UNDERWRITER`, `ADMIN`. Review/upload endpoints require
-`UNDERWRITER`/`ADMIN`; analysis/evidence/explanation are permitted for the demo. Login via
-`POST /api/auth/login` returns a bearer token.
+### 4.1 Root & build config
+| File | Purpose |
+| --- | --- |
+| `pom.xml` | Backend dependencies & build. Profiles: default builds backend only; `bundle-backend-and-frontend` also builds the React app. Byte-Buddy 1.16.1 + surefire `--add-opens` keep tests green on JDK 24. |
+| `Dockerfile` | Multi-stage: `maven:3.9-temurin-17` compiles the jar, `eclipse-temurin:17-jre` runs it on port 8080. |
+| `docker-compose.yml` | Three services: `postgres` (`pgvector/pgvector:pg16`, host port **5433**), `backend` (port 8080), `frontend` (port 3000). |
+| `build-submission.sh` | Creates `submission/SE23UCSE065.zip` from the README + the maintained `submission/SE23UCSE065/*.md` sources + a code snapshot. |
+| `.env.example` | Template for `POSTGRES_PASSWORD` used by Docker Compose. |
+| `.github/workflows/build.yml` | CI: checkout, JDK 17, `./mvnw -P'!bundle-backend-and-frontend' test`. |
+| `.gitignore` | Excludes `node_modules/`, `target/`, `build/`, `uploads/`, `.env`, `.idea`, and the frontend-maven-plugin Node runtime. |
 
-**Semantic evidence search** — `ai/VectorStore.java` enables the PostgreSQL `vector` extension,
-stores document-evidence embeddings, and serves cosine-similarity search with a text fallback.
+### 4.2 Backend — `src/main/java/com/synchrony/nexcredit/`
+**Entry & health**
+| File | Purpose |
+| --- | --- |
+| `NexCreditApplication.java` | `@SpringBootApplication` main class (entry point). |
+| `HealthController.java` | `GET /api/health` liveness probe. |
 
-**LLM explanation (responsible AI)** — `ai/ExplanationService.java` calls an OpenAI-compatible
-chat endpoint (configurable to AWS Bedrock via `base-url`/model) with a fixed system prompt and
-guardrails (`guardrailOk` + `sanitize`). On any failure or guardrail trip it falls back to a
-deterministic, transparent explanation. The AI layer is **offline by default** (`nexcredit.ai.enabled=false`);
-no key is committed.
+**`credit/` — domain, underwriting, review, documents, audit**
+| File | Purpose |
+| --- | --- |
+| `CreditApplication.java` | JPA entity: applicant fields + alternative-data signals (mobile, transaction, social, income, employment). |
+| `CreditApplicationRepository.java` | Spring Data JPA repository for applications. |
+| `CreditApplicationService.java` | CRUD, document storage, review workflow, seed data loading. |
+| `CreditUnderwritingService.java` | Core decision engine: multi-stage scoring, confidence, fraud-risk, and the **age-sensitive bias guardrail** (routes rejected under-21 applicants to human review). |
+| `CreditDecision.java` | Decision DTO: APPROVE / REVIEW / REJECT, confidence, stage trace, factor breakdown. |
+| `CreditSeedData.java` | Loads sample NTC / thin-file applicants on startup. |
+| `CreditController.java` | REST API (see §6). |
+| `DocumentEvidence.java` | Entity: extracted document text + bounded preview + extraction status. |
+| `DocumentEvidenceRepository.java` | JPA repo for document evidence. |
+| `DocumentEvidenceService.java` | Apache Tika text extraction, bounded preview, and indexing into the vector store. |
+| `AuditController.java` | `GET /api/audit/**` decision/audit history endpoints. |
+| `AuditLog.java` / `AuditLogRepository.java` / `AuditLogService.java` | Per-decision audit record (who/when/what) for traceability. |
+| `EmploymentType.java` / `ReviewStatus.java` | Enums (employment category; review outcome). |
+| `ReviewRequest.java` | DTO for a reviewer's decision + notes. |
 
-## Run locally
+**`ai/` — embeddings, semantic search, LLM explanation**
+| File | Purpose |
+| --- | --- |
+| `AiProperties.java` | `@ConfigurationProperties` for `nexcredit.ai.*` (enabled flag, base URL, model names, embedding dim). |
+| `EmbeddingService.java` | Calls an OpenAI-compatible embedding endpoint; deterministic local fallback hash-embeddings when no key. |
+| `VectorStore.java` | Manages the pgvector table, cosine `<->` search, startup reindex, and graceful degradation when pgvector is absent. |
+| `ExplanationService.java` | Builds a plain-language decision explanation via LLM, with guardrails (`guardrailOk` / `sanitize`) and a rule-based fallback. Returns `aiPowered` flag. |
+| `EvidenceSearchRequest.java` | Record: `query`, `k` (top-k). |
+| `ExplanationResponse.java` | Record: decision summary, contributing factors, rationale, `aiPowered`. |
+| `SearchHit.java` | Record: matched application id, text preview, similarity score. |
 
-Prerequisites: Java 17+, Node/npm, and PostgreSQL **with the `vector` extension** (for semantic search).
+**`security/` — JWT auth**
+| File | Purpose |
+| --- | --- |
+| `SecurityConfig.java` | Stateless filter chain, CORS, CSRF off; permits public endpoints, secures `/review/**` and `/upload/**` for UNDERWRITER/ADMIN. |
+| `JwtUtil.java` | JWT create/parse (HS256, expiry from `nexcredit.security.jwt-expiration-ms`). |
+| `JwtAuthenticationFilter.java` | Validates the `Authorization: Bearer` token on each request. |
+| `AuthController.java` | `POST /api/auth/login` → returns JWT for username/password. |
+| `AuthRequest.java` / `AuthResponse.java` | Login request/response records. |
+| `UsersConfig.java` | In-memory users from `nexcredit.security.users` (underwriter / admin / applicant). |
 
-Start PostgreSQL and create `creditdb`, then from the repo root:
+**Resources**
+| File | Purpose |
+| --- | --- |
+| `src/main/resources/application.properties` | Datasource (`${USER}`/`${DB_PASSWORD:}`), JWT secret (dev placeholder), AI flags, `nexcredit.vector.enabled`. |
 
+### 4.3 Tests — `src/test/java/com/synchrony/nexcredit/`
+| File | Purpose |
+| --- | --- |
+| `NexCreditApplicationTests.java` | Spring context load smoke test. |
+| `HealthControllerTest.java` | `/api/health` returns 200. |
+| `credit/CreditControllerTest.java` | 6 tests: analyze, applications, pending-review, review, upload, evidence/search, explanation. |
+| `credit/CreditApplicationServiceTest.java` | Service-level save/review logic. |
+| `credit/CreditUnderwritingServiceTest.java` | Scoring / decision outcomes. |
+| `credit/CreditUnderwritingBiasGuardrailTest.java` | Under-21 rejection → REVIEW routing. |
+| `credit/CreditSeedDataTest.java` | Seed data integrity. |
+| `credit/DocumentEvidenceServiceTest.java` | Tika extraction + vector indexing with a mocked `VectorStore`. |
+
+### 4.4 Frontend — `src/frontend/`
+| Path | Purpose |
+| --- | --- |
+| `package.json` / `package-lock.json` | React 18 + Ant Design 5 deps; `npm start` (dev, proxy to :8081) / `npm run build`. |
+| `.env` | `REACT_APP_API_BASE_URL=http://localhost:8080`. |
+| `public/` | `index.html`, favicon, manifest, logos (CRA default assets). |
+| `src/index.js` | React entry; mounts `<App/>`, loads styles, reportWebVitals. |
+| `src/App.js` | Dashboard composition root: login dialog, panels (new application, review queue, audit trail), routing. Auto-logs in as underwriter. |
+| `src/App.css` / `src/index.css` | Global + component styles. |
+| `src/Client.js` | API client: attaches JWT, wraps `login`, `analyze`, `getApplications`, `getPendingReview`, `uploadDocument`, `searchEvidence`, `explainDecision`. |
+| `src/CreditApplicationForm.js` | New-application form; submits for analysis; **Explain** button → LLM explanation. |
+| `src/EvidenceSearchPanel.js` | Semantic document search UI → `POST /api/credit/evidence/search`. |
+| `src/DecisionCard.js` | Renders a `CreditDecision` (stage trace, confidence, factors). |
+| `src/DocumentScanPreview.js` | Bounded evidence preview + clearly-labelled scan simulation. |
+| `src/FraudHeatmap.js` | Fraud-risk visualisation (prototype). |
+| `src/RiskRadar.js` | Multi-dimension risk radar (prototype). |
+| `src/ImpactMetrics.js` | Portfolio / inclusion impact metrics panel. |
+| `src/TraditionalComparison.js` | Side-by-side vs traditional scoring. |
+| `src/Notification.js` | Toast/notification helper. |
+| `src/AgentPipeline.js` | Underwriting-stage pipeline visualisation. |
+| `src/logo.svg`, `reportWebVitals.js`, `setupTests.js`, `App.test.js` | Assets / CRA test scaffolding. |
+| `Dockerfile` / `nginx.conf` | Production frontend image (nginx serving the build on port 80). |
+
+### 4.5 Infrastructure & misc
+| Path | Purpose |
+| --- | --- |
+| `src/frontend/Dockerfile`, `nginx.conf` | Containerised React build served by nginx. |
+| `docs/` | `architecture.md`, `pitch-context.md`, `roadmap.md`, `deck-generation-prompt.md` (long-form / hackathon narrative). |
+| `submission/SE23UCSE065/` | The graded submission package (roll-numbered): `readme`, `pdf-source`, `deck-source`, `demo-script`, `panel-qa`, `compliance`. Replace with the generated ZIP for upload. |
+
+## 5. How to run
+
+**Option A — Docker (recommended, includes pgvector):**
 ```bash
-SERVER_PORT=8081 \
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/creditdb \
-SPRING_DATASOURCE_USERNAME="$USER" \
-SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-./mvnw -P'!bundle-backend-and-frontend' spring-boot:run
+cp .env.example .env            # set POSTGRES_PASSWORD
+docker compose up --build       # postgres:5433, backend:8080, frontend:3000
 ```
+Open http://localhost:3000 (backend at http://localhost:8080).
 
-In a second terminal:
-
+**Option B — Local dev:**
 ```bash
-cd src/frontend
-npm install
-PORT=3001 npm start
+# Terminal 1 — Postgres with pgvector on :5433 (Docker)
+docker run -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=creditdb \
+  -p 5433:5432 pgvector/pgvector:pg16
+
+# Terminal 2 — Backend (uses your OS user as DB user)
+export DB_PASSWORD=admin
+./mvnw -P'!bundle-backend-and-frontend' spring-boot:run   # :8081
+
+# Terminal 3 — Frontend
+cd src/frontend && npm install && npm start               # :3000 (proxies to backend)
 ```
+Default users: `underwriter / underwriter123` (UNDERWRITER), `admin / admin123` (ADMIN), `applicant / applicant123` (APPLICANT).
 
-Open `http://localhost:3001`. The development proxy targets `8081`, avoiding a local service already using `8080`.
+**AI features** are off by default. To enable: set `NEXCREDIT_AI_ENABLED=true` and `OPENAI_API_KEY` (any OpenAI-compatible endpoint via `OPENAI_BASE_URL`). Without a key the app returns deterministic, rule-based explanations and disables semantic search gracefully.
 
-## Docker
+## 6. API surface
 
-When Docker Desktop is healthy:
+| Method | Path | Auth | Purpose |
+| --- | --- | --- | --- |
+| GET | `/api/health` | public | Liveness |
+| POST | `/api/auth/login` | public | Username/password → JWT |
+| POST | `/api/credit/analyze` | public | Run underwriting on an application → `CreditDecision` |
+| GET | `/api/credit/applications` | public | All applications |
+| GET | `/api/credit/pending-review` | public | Applications awaiting review |
+| POST | `/api/credit/applications` | public | Create an application |
+| POST | `/api/credit/review/{id}` | UNDERWRITER/ADMIN | Final reviewer decision |
+| POST | `/api/credit/upload` | UNDERWRITER/ADMIN | Upload document → Tika extraction + vector index |
+| GET | `/api/credit/evidence/{id}` | public | Latest document evidence for an application |
+| POST | `/api/credit/evidence/search` | public | Semantic search across evidence (`query`, `k`) |
+| POST | `/api/credit/explanation` | public | Plain-language explanation of a decision |
+| GET | `/api/audit/**` | public | Audit history |
 
-```bash
-cp .env.example .env
-docker compose up --build
-```
+## 7. Responsible-AI posture (honest scope)
 
-Frontend: `http://localhost:3000`; backend: `http://localhost:8080`; PostgreSQL: `localhost:5432`.
+- **Explainable, not autonomous:** decisions are inspectable (stage trace, confidence, factors) and final approval rests with a human reviewer.
+- **Bias guardrail:** age-sensitive logic routes rejected under-21 applicants to review rather than auto-declining.
+- **No real CIBIL / device / location data:** the prototype uses consented, synthetic alternative signals; it is a demonstration, not a production risk model.
+- **Graceful degradation:** pgvector and LLM features fall back to local/rule-based paths when unavailable; the app never hard-fails.
+- **Auditability:** every decision is logged for review and traceability.
 
-## API surface
+## 8. Where to look next
 
-| Endpoint | Purpose | Role |
-| --- | --- | --- |
-| `POST /api/auth/login` | Exchange credentials for a JWT | Public |
-| `GET /api/credit/applications` | Application portfolio | Any |
-| `POST /api/credit/analyze` | Persist, evaluate, and audit one application | Any |
-| `GET /api/credit/pending-review` | Cases requiring a human review | Any |
-| `POST /api/credit/review/{applicationId}` | Mark a queued case reviewed and store notes | UNDERWRITER/ADMIN |
-| `POST /api/credit/upload?applicationId={id}` | Save an optional supporting document | UNDERWRITER/ADMIN |
-| `GET /api/credit/evidence/{applicationId}` | Retrieve the latest extracted supporting-document evidence | Any |
-| `POST /api/ai/explanation` | LLM explanation of a decision (guarded, with fallback) | Any |
-| `POST /api/ai/evidence-search` | Semantic search across document evidence (pgvector) | Any |
-| `GET /api/audit/logs` | Decision audit history | Any |
-| `GET /api/health` | Lightweight service readiness check | Public |
-
-## Verification
-
-```bash
-./mvnw -P'!bundle-backend-and-frontend' -Dtest=CreditUnderwritingServiceTest,CreditUnderwritingBiasGuardrailTest,CreditControllerTest,CreditSeedDataTest test
-cd src/frontend
-CI=true npm test -- --watchAll=false
-npm run build
-```
-
-## Responsible-AI posture
-
-This is a student prototype, not a real-world lending system. Prototype/simulation status is made explicit for visual fraud signals, document scan preview, and conventional-model comparison. A production implementation would require consented data collection, fairness evaluation, security controls, model monitoring, regulatory review, and human accountability.
+- Architecture deep-dive: `docs/architecture.md`
+- Pitch narrative: `docs/pitch-context.md`
+- Engineering roadmap: `docs/roadmap.md`
+- Submission package: `submission/SE23UCSE065/`

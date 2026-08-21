@@ -58,3 +58,7 @@ yarn-error.log*
 
 # frontend-maven-plugin downloaded Node runtime (build artifact)
 src/frontend/node/
+
+# generated submission artifacts (build locally, do not commit)
+submission/*.zip
+submission/**/*.pdf
