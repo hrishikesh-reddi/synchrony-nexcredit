@@ -5,21 +5,17 @@
 set -euo pipefail
 
 ROLL="SE23UCSE065"
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 OUT="$ROOT/submission"
 SRC="$OUT/$ROLL"
 ZIP="$OUT/$ROLL.zip"
 
 echo "==> Building submission bundle for $ROLL"
 
-# 1) Refresh source docs into the named folder (Markdown sources)
+# 1) Refresh the README into the named folder (the rest of the written
+#    companion docs are maintained directly in submission/$ROLL/).
 mkdir -p "$SRC"
-cp "$ROOT/SUBMISSION.md"        "$SRC/$ROLL.pdf-source.md"
-cp "$ROOT/PITCH_DECK.md"        "$SRC/$ROLL-deck-source.md"
-cp "$ROOT/DEMO_SCRIPT.md"       "$SRC/$ROLL-demo-script.md"
-cp "$ROOT/PANEL_QA.md"          "$SRC/$ROLL-panel-qa.md"
-cp "$ROOT/HACKATHON_COMPLIANCE.md" "$SRC/$ROLL-compliance.md"
-cp "$ROOT/README.md"            "$SRC/$ROLL-readme.md"
+cp "$ROOT/README.md" "$SRC/$ROLL-readme.md"
 
 # 2) Place the recorded demo video here if present (name it exactly):
 #    submission/SE23UCSE065/SE23UCSE065-demo.mp4
