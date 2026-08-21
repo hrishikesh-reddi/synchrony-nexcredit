@@ -11,6 +11,31 @@ NexCredit AI shows how permitted alternative-data signals (mobile engagement, tr
 
 ---
 
+## Screenshots
+
+> Captured from a live local run (Spring Boot on `:8081`, React on `:3001`, pgvector on `:5435`).
+
+### Landing page
+![Landing page](docs/screenshots/01-landing.png)
+
+### Underwriter workbench (dashboard / application portfolio)
+![Underwriter workbench](docs/screenshots/03-workbench.png)
+
+### New credit application form
+![New credit application form](docs/screenshots/05-application-form.png)
+
+### Decision result (decision, confidence, fraud-risk, stage trace)
+![Decision result](docs/screenshots/04-decision.png)
+
+### Human review queue
+![Human review queue](docs/screenshots/06-review-queue.png)
+
+### Decision audit trail
+![Decision audit trail](docs/screenshots/07-audit-trail.png)
+
+### Evidence (semantic document) search
+![Evidence search](docs/screenshots/08-evidence-search.png)
+
 ## 1. Problem & approach (short)
 
 Traditional underwriting leans on formal credit history, which excludes NTC / thin-file applicants. NexCredit combines consented alternative signals with a transparent decision policy, flags uncertainty or risk, and routes to a human reviewer with the evidence needed to make the final call. It is a **governed underwriting workbench**, not an autonomous approval bot.
