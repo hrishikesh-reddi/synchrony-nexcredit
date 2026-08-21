@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Col, Empty, Input, Layout, Modal, Row, Spin, Table, Tag, Typography } from 'antd';
-import { ApiOutlined, AppstoreOutlined, ArrowRightOutlined, AuditOutlined, CheckCircleFilled, FileSearchOutlined, LockOutlined, PlusOutlined, SafetyCertificateOutlined, SearchOutlined, ThunderboltOutlined, UserOutlined } from '@ant-design/icons';
-import { getAuditLogs, getCreditApplications, login, reviewCreditApplication, setAuthToken } from './Client';
+import { ApiOutlined, AppstoreOutlined, ArrowRightOutlined, AuditOutlined, CheckCircleFilled, FileSearchOutlined, LockOutlined, PlusOutlined, SafetyCertificateOutlined, ThunderboltOutlined, UserOutlined } from '@ant-design/icons';
+import { getAuditLogs, getCreditApplications, getHealth, login, reviewCreditApplication, setAuthToken } from './Client';
 import { errorNotification } from './Notification';
 import CreditApplicationForm from './CreditApplicationForm';
 import ImpactMetrics from './ImpactMetrics';
@@ -69,6 +69,12 @@ function App() {
   const [activeNavigation, setActiveNavigation] = useState('Dashboard');
   const [authUser, setAuthUser] = useState(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [apiStatus, setApiStatus] = useState('checking');
+  useEffect(() => {
+    getHealth()
+      .then(health => setApiStatus(health.status === 'UP' ? 'live' : 'offline'))
+      .catch(() => setApiStatus('offline'));
+  }, []);
   useEffect(() => {
     login('underwriter', 'underwriter123')
       .then(response => { setAuthToken(response.token); setAuthUser({ username: response.username, roles: response.roles }); })
@@ -95,7 +101,7 @@ function App() {
   };
   if (!workspaceOpen) return <><LandingPage onOpenWorkbench={() => setWorkspaceOpen(true)} onStartApplication={startApplication} /><CreditApplicationForm open={drawerOpen} onClose={() => setDrawerOpen(false)} onCreated={loadApplications} /><LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onLogin={setAuthUser} /></>;
   return <Layout className="app-shell">
-    <Header className="topbar workspace-topbar"><div className="workspace-brand"><Button type="text" className="brand brand-home" onClick={() => { setWorkspaceOpen(false); setActiveNavigation('Dashboard'); }}><SafetyCertificateOutlined /> NexCredit <span>AI</span></Button><span className="product-context">UNDERWRITING</span></div><nav className="workspace-tabs" aria-label="Workbench navigation"><Button type="text" className={activeNavigation === 'Dashboard' ? 'active' : ''} icon={<AppstoreOutlined />} onClick={() => navigateTo('Dashboard', 'dashboard-overview')}>Dashboard</Button><Button type="text" className={activeNavigation === 'Applications' ? 'active' : ''} icon={<FileSearchOutlined />} onClick={() => navigateTo('Applications', 'applications')}>Applications</Button><Button type="text" className={activeNavigation === 'Review queue' ? 'active' : ''} icon={<SafetyCertificateOutlined />} onClick={() => navigateTo('Review queue', 'review-queue')}>Review queue {pending > 0 && <b>{pending}</b>}</Button><Button type="text" className={activeNavigation === 'Audit trail' ? 'active' : ''} icon={<AuditOutlined />} onClick={() => navigateTo('Audit trail', 'audit-log')}>Audit trail</Button></nav><div className="workspace-controls"><Button className="command-search" type="text" icon={<SearchOutlined />} aria-label="Search applications"><span>Search</span><kbd>⌘ K</kbd></Button><span className="service-status"><i /> API live</span><Button className="new-app-button" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>New application</Button>{authUser ? <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>{authUser.username} <Tag color="blue">{authUser.roles?.[0] || 'USER'}</Tag></Button> : <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>Sign in</Button>}</div></Header>
+    <Header className="topbar workspace-topbar"><div className="workspace-brand"><Button type="text" className="brand brand-home" onClick={() => { setWorkspaceOpen(false); setActiveNavigation('Dashboard'); }}><SafetyCertificateOutlined /> NexCredit <span>AI</span></Button><span className="product-context">UNDERWRITING</span></div><nav className="workspace-tabs" aria-label="Workbench navigation"><Button type="text" className={activeNavigation === 'Dashboard' ? 'active' : ''} icon={<AppstoreOutlined />} onClick={() => navigateTo('Dashboard', 'dashboard-overview')}>Dashboard</Button><Button type="text" className={activeNavigation === 'Applications' ? 'active' : ''} icon={<FileSearchOutlined />} onClick={() => navigateTo('Applications', 'applications')}>Applications</Button><Button type="text" className={activeNavigation === 'Review queue' ? 'active' : ''} icon={<SafetyCertificateOutlined />} onClick={() => navigateTo('Review queue', 'review-queue')}>Review queue {pending > 0 && <b>{pending}</b>}</Button><Button type="text" className={activeNavigation === 'Audit trail' ? 'active' : ''} icon={<AuditOutlined />} onClick={() => navigateTo('Audit trail', 'audit-log')}>Audit trail</Button></nav><div className="workspace-controls"><span className={`service-status ${apiStatus}`}><i /> API {apiStatus}</span><Button className="new-app-button" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>New application</Button>{authUser ? <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>{authUser.username} <Tag color="blue">{authUser.roles?.[0] || 'USER'}</Tag></Button> : <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>Sign in</Button>}</div></Header>
     <Content className="content-wrap">
       <section className="dashboard-hero" id="dashboard-overview"><div><span className="eyebrow">UNDERWRITING OPERATIONS · LIVE WORKBENCH</span><Title level={1}>Good morning, analyst.</Title><Text>Review alternative signals, route uncertainty, and keep every decision accountable.</Text></div><div className="hero-status"><span>Portfolio health</span><strong>{approved} approvals</strong><small><i /> Decision engine online</small></div></section>
       <Alert className="responsible-ai" message="Responsible AI guardrail active" description="Low-confidence or policy-sensitive cases are routed to a human reviewer before any final action." type="info" showIcon />

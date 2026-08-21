@@ -1,11 +1,12 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import App from './App';
-import { getAuditLogs, getCreditApplications, login } from './Client';
+import { getAuditLogs, getCreditApplications, getHealth, login } from './Client';
 
 jest.mock('./Client', () => ({
   getAllStudents: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
   getCreditApplications: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
   getAuditLogs: jest.fn(() => Promise.resolve({ json: () => Promise.resolve([]) })),
+  getHealth: jest.fn(() => Promise.resolve({ status: 'UP' })),
   login: jest.fn(() => Promise.resolve({ token: 'test-token', username: 'underwriter', roles: ['UNDERWRITER'] })),
   setAuthToken: jest.fn(),
   analyzeCreditApplication: jest.fn(),
@@ -14,6 +15,7 @@ jest.mock('./Client', () => ({
 
 test('introduces NexCredit before opening the live workbench', async () => {
   login.mockResolvedValue({ token: 'test-token', username: 'underwriter', roles: ['UNDERWRITER'] });
+  getHealth.mockResolvedValue({ status: 'UP' });
   getCreditApplications.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
   getAuditLogs.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
   render(<App />);
@@ -27,4 +29,17 @@ test('introduces NexCredit before opening the live workbench', async () => {
   expect(screen.getByRole('navigation', { name: /Workbench navigation/i })).toBeInTheDocument();
   expect(screen.getByText('Applications', { selector: 'span' })).toBeInTheDocument();
   expect(screen.getByText(/API live/i)).toBeInTheDocument();
+});
+
+test('does not claim the API is live when the health request fails', async () => {
+  login.mockResolvedValue({ token: 'test-token', username: 'underwriter', roles: ['UNDERWRITER'] });
+  getHealth.mockRejectedValue(new Error('API unavailable'));
+  getCreditApplications.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
+  getAuditLogs.mockReturnValue(Promise.resolve({ json: () => Promise.resolve([]) }));
+
+  render(<App />);
+  fireEvent.click(await screen.findByText(/Open live workbench/i));
+
+  expect(await screen.findByText(/API offline/i)).toBeInTheDocument();
+  expect(screen.queryByText(/API live/i)).not.toBeInTheDocument();
 });
