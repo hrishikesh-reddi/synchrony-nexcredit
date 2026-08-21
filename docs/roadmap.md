@@ -34,8 +34,8 @@ This is the right starting point because NIST's AI RMF identifies explainability
 | Bias guardrail and human-review route | Implemented | review status, review APIs, audit history |
 | Uploaded-file storage and bounded text evidence | Implemented | Apache Tika extraction, persisted status/preview, reviewer-only evidence API |
 | Trained ML model | Not implemented | roadmap item |
-| LLM / Bedrock | Not implemented | roadmap item; UI simulations are labelled |
-| Semantic document retrieval / pgvector | Not implemented | roadmap item |
+| Optional explanation LLM | Implemented, off by default | OpenAI-compatible client with guardrails and deterministic fallback; native Bedrock adapter is roadmap |
+| Semantic document retrieval / pgvector | Implemented | local deterministic embeddings, pgvector distance search, and token fallback |
 | IAM, authentication, deployed monitoring | Not implemented | roadmap item |
 
 Never present roadmap functionality as live functionality.
@@ -59,7 +59,7 @@ Spring Boot orchestration API
         │
         ├── PostgreSQL: applications, decisions, review cases, audit events
         ├── Object storage: consented documents
-        ├── pgvector: approved document/evidence retrieval (future)
+        ├── pgvector: document/evidence retrieval (implemented prototype)
         └── Monitoring: latency, policy outcomes, model drift, reviewer overrides
 ```
 
@@ -116,7 +116,9 @@ Each flag needs a severity, evidence, rule ID, created time, and resolution. Hig
 
 NexCredit now extracts a bounded local text preview from uploaded documents using Apache Tika and persists an extraction status. Next, extract named fields with confidence, show them to the reviewer, and require reviewer confirmation before any extracted value affects an application. Store only consented documents and a content hash.
 
-Later, add embeddings and pgvector only for approved evidence retrieval. The system should retrieve evidence snippets for a reviewer; it must not allow a vector search or LLM to make eligibility decisions.
+The implemented embedding and pgvector path retrieves evidence snippets for a reviewer. A production
+version should add evidence approval/provenance controls and must not allow vector search or an LLM
+to make eligibility decisions.
 
 **Demo acceptance test:** upload a sample bank statement, display extracted income evidence, accept or reject the evidence, and show that action in the audit trail.
 

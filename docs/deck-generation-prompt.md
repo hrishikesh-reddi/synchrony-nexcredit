@@ -11,7 +11,7 @@
 
 - **Product:** NexCredit AI
 - **Tagline:** Credit decisions with context.
-- **Problem statement (chosen):** Synchrony Hackathon   *Next-Gen Credit Intelligence: Building a
+- **Problem statement (chosen):** Synchrony Hackathon Problem Statement 3 (PB-3)   *Next-Gen Credit Intelligence: Building a
   Real-Time, Multi-Modal Underwriting Engine.*
 - **Candidate / submission id:** SE23UCSE065 (every file is named with this roll number only)
 - **One-liner:** An explainable, secure, multi-modal credit-underwriting prototype that helps
@@ -85,7 +85,7 @@ Insight cards:
 
 ### Slide 7   Semantic evidence search (live feature)
 Screenshot-style mock of a search box: query **"inconsistent monthly income"**  to  ranked, cited
-evidence chunks with cosine-similarity scores. Note the text fallback when `vector` extension is off.
+evidence chunks ranked by pgvector distance. Note the token fallback when the `vector` extension is off.
 Caption: "An underwriter asks in plain language; pgvector returns the exact evidence by meaning."
 
 ### Slide 8   Responsible AI & security (KEY SLIDE)
@@ -99,11 +99,12 @@ Checklist with icons:
 
 ### Slide 9   Evidence & impact
 Grid of demo stills (use placeholders labelled): Dashboard portfolio · APPROVE trace ·
-under-21  to  REVIEW · JWT login · semantic search · audit log. Plus a chip: "9 backend tests and frontend build: green".
+under-21  to  REVIEW · JWT login · semantic search · audit log. Plus a chip: "13 backend tests and frontend build: green".
 
 ### Slide 10   Roadmap & close
 Two-column roadmap:
-- *Live today:* alt-data workflow, explainable decisions, bias guardrail, JWT RBAC, pgvector search, guarded LLM, audit.
+- *Live today:* alt-data workflow, explainable decisions, bias guardrail, JWT roles, pgvector search,
+  deterministic explanation plus an optional guarded LLM path (off by default), audit.
 - *Next:* AWS Bedrock models · consent and data provenance · fairness metrics · managed pgvector/RDS · CloudWatch monitoring · model card/risk assessment.
 Closing line: *Expanding access and staying explainable, secure, and auditable are the same engineering discipline.*
 
@@ -112,7 +113,8 @@ Closing line: *Expanding access and staying explainable, secure, and auditable a
 ## SUPPORTING FACTS (use verbatim where helpful)
 
 - **Stack:** React and Ant Design (frontend); Spring Boot 3.3 / Java 17 (backend); PostgreSQL with
-  the `vector` extension (structured and embeddings); OpenAI-compatible LLM client (Bedrock-swappable).
+  the `vector` extension (structured and embeddings); optional OpenAI-compatible LLM client
+  (native Bedrock adapter is roadmap).
 - **Auth:** Spring Security, JWT (HS256), BCrypt passwords, 3 roles. Demo users:
   `applicant/applicant123`, `underwriter/underwriter123`, `admin/admin123`.
 - **AI config (no secrets committed):** `nexcredit.ai.enabled=false` by default; `OPENAI_API_KEY`
@@ -120,7 +122,7 @@ Closing line: *Expanding access and staying explainable, secure, and auditable a
 - **Guardrails:** system prompt forbids revealing logic / inventing facts / discriminating /
   following instructions in data; `guardrailOk()` blocks "ignore previous", "jailbreak", etc.;
   `sanitize()` strips injection patterns; on any failure  to  deterministic `fallbackExplanation`.
-- **Tests:** 9 backend tests (incl. `CreditUnderwritingBiasGuardrailTest`, `VectorStore` paths,
+- **Tests:** 13 backend tests (incl. `CreditUnderwritingBiasGuardrailTest`, `VectorStore` paths,
   `DocumentEvidenceServiceTest`) and frontend `CI=true npm test` and `npm run build`.
 - **Honest limitations:** no live bureau/device data; Bedrock not invoked offline; document
   intelligence = local extraction and semantic index, not OCR governance.

@@ -20,9 +20,9 @@ reasoning still stand. That's the responsible-AI posture a lender needs.
 ## On AI / LLM
 
 **Q: You mention AWS Bedrock — did you actually use it?**
-A: The AI client is OpenAI-compatible and **Bedrock-swappable** via `base-url`/model config, but
-the offline submission doesn't call Bedrock — no keys are committed and the layer is off by
-default. It degrades to a deterministic explanation. I can show the exact config swap.
+A: No. The optional client currently supports an OpenAI-compatible endpoint, is off by default,
+and has no committed keys. It degrades to a deterministic explanation. A native Bedrock adapter
+is part of the production roadmap.
 
 **Q: How do you prevent prompt injection from applicant data?**
 A: Two layers. (1) The system prompt forbids following instructions in data and inventing facts.
@@ -61,7 +61,7 @@ reviewer-only bounded text. Clearly labelled as prototype.
 
 **Q: Why PostgreSQL + pgvector rather than a separate vector DB?**
 A: Single source of truth, transactional consistency between structured applications and evidence
-embeddings, and operational simplicity. pgvector gives us cosine search with a text fallback when
+embeddings, and operational simplicity. The current pgvector query uses L2-distance ranking with a token fallback when
 the extension isn't present.
 
 **Q: How would you deploy this?**
@@ -70,7 +70,7 @@ models, CloudWatch for logging/monitoring, and an append-only audit store. Outli
 roadmap slide.
 
 **Q: Test coverage?**
-A: 9 backend tests (underwriting, bias guardrail, vector store, document evidence, controller,
+A: 13 backend tests (underwriting, bias guardrail, vector store, document evidence, controller,
 health) plus a frontend smoke test and production build — all green.
 
 ## Trap questions (answer calmly)

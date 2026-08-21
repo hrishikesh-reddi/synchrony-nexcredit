@@ -1,7 +1,7 @@
 # NexCredit AI
 
 > Real-time, multi-modal credit-underwriting prototype for New-to-Credit (NTC) and thin-file applicants.
-> Built for the **Synchrony Hackathon** problem statement: *Next-Gen Credit Intelligence: Building a Real-Time, Multi-Modal Underwriting Engine*.
+> Built for **Synchrony Hackathon Problem Statement 3 (PB-3)**: *Next-Gen Credit Intelligence: Building a Real-Time, Multi-Modal Underwriting Engine*.
 
 NexCredit AI shows how permitted alternative-data signals (mobile engagement, transaction behaviour, income, optional documents) can support an **explainable** credit workflow, instead of a black-box approve/reject. Every decision carries a stage trace, confidence, fraud context, a bias-aware escalation path, and a per-decision audit record.
 
@@ -90,7 +90,7 @@ NexCredit-AI/
 | --- | --- |
 | `AiProperties.java` | `@ConfigurationProperties` for `nexcredit.ai.*` (enabled flag, base URL, model names, embedding dim). |
 | `EmbeddingService.java` | Calls an OpenAI-compatible embedding endpoint; deterministic local fallback hash-embeddings when no key. |
-| `VectorStore.java` | Manages the pgvector table, cosine `<->` search, startup reindex, and graceful degradation when pgvector is absent. |
+| `VectorStore.java` | Manages the pgvector table, `<->` L2-distance search, startup reindex, and token-based fallback when pgvector is absent. |
 | `ExplanationService.java` | Builds a plain-language decision explanation via LLM, with guardrails (`guardrailOk` / `sanitize`) and a rule-based fallback. Returns `aiPowered` flag. |
 | `EvidenceSearchRequest.java` | Record: `query`, `k` (top-k). |
 | `ExplanationResponse.java` | Record: decision summary, contributing factors, rationale, `aiPowered`. |
@@ -142,7 +142,7 @@ NexCredit-AI/
 | `src/ImpactMetrics.js` | Portfolio / inclusion impact metrics panel. |
 | `src/TraditionalComparison.js` | Side-by-side vs traditional scoring. |
 | `src/Notification.js` | Toast/notification helper. |
-| `src/AgentPipeline.js` | Underwriting-stage pipeline visualisation. |
+| `src/AgentPipeline.js` | Frontend animation that visualises the deterministic underwriting stages; it is not five independent backend AI agents. |
 | `src/logo.svg`, `reportWebVitals.js`, `setupTests.js`, `App.test.js` | Assets / CRA test scaffolding. |
 | `Dockerfile` / `nginx.conf` | Production frontend image (nginx serving the build on port 80). |
 
@@ -177,7 +177,10 @@ cd src/frontend && npm install && npm start               # :3000 (proxies to ba
 ```
 Default users: `underwriter / underwriter123` (UNDERWRITER), `admin / admin123` (ADMIN), `applicant / applicant123` (APPLICANT).
 
-**AI features** are off by default. To enable: set `NEXCREDIT_AI_ENABLED=true` and `OPENAI_API_KEY` (any OpenAI-compatible endpoint via `OPENAI_BASE_URL`). Without a key the app returns deterministic, rule-based explanations and disables semantic search gracefully.
+**Remote AI calls** are off by default. To enable the optional explanation/embedding client, set
+`NEXCREDIT_AI_ENABLED=true` and `OPENAI_API_KEY` for an OpenAI-compatible endpoint configured via
+`OPENAI_BASE_URL`. Without a key, explanations remain deterministic and embeddings use a local
+fallback; evidence search uses pgvector when available and token matching otherwise.
 
 ## 6. API surface
 

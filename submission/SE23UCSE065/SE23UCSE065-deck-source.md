@@ -9,6 +9,7 @@
 ## Slide 1 — Title
 - **Title:** NexCredit AI — A Real-Time, Multi-Modal Underwriting Engine
 - **Subtitle:** Explainable credit decisions for New-to-Credit applicants
+- **Challenge line:** Synchrony Hackathon Problem Statement 3 (PB-3)
 - **Footer:** Synchrony Hackathon · SE23UCSE065
 - **Say:** "Thank you. In 8 minutes I'll show how we turn alternative data and document
   evidence into a credit decision a human can actually trust."
@@ -20,10 +21,11 @@
   the tension our engine resolves."
 
 ## Slide 3 — Our approach (the 3 ideas)
-- **Show:** 3 pillars — (1) Rules-first, AI-explains-second · (2) Semantic evidence retrieval ·
+- **Show:** 3 pillars — (1) Deterministic decisions, optional AI explanations · (2) Semantic evidence retrieval ·
   (3) Secure + human-in-the-loop.
-- **Say:** "Three design choices define us: the model decides nothing autonomously — it explains;
-  we retrieve evidence by *meaning* with pgvector; and every sensitive action is role-gated with JWT."
+- **Say:** "Three design choices define us: the underwriting outcome is deterministic and the
+  optional language model decides nothing autonomously — it only explains;
+  we retrieve evidence by *meaning* with pgvector; and review/upload actions are role-gated with JWT."
 
 ## Slide 4 — Architecture (KEY SLIDE)
 - **Show:** The C4 diagram from `SUBMISSION.md` §4.1 (React → JWT/Security → Engine → AI Layer →
@@ -36,7 +38,8 @@
 - **Show:** The Mermaid sequence (§4.2) or a simplified flow: signals → rules → bias guardrail →
   decision → explanation → audit; plus evidence upload → extract → embed → semantic search.
 - **Say:** "Structured signals drive the score; unstructured documents become searchable evidence.
-  The age-sensitive guardrail catches policy-sensitive cases and routes them to a human."
+  The age-sensitive guardrail catches policy-sensitive cases and routes them to a human. The
+  five-stage frontend animation visualises this workflow; it is not five autonomous backend agents."
 
 ## Slide 6 — Key insight: explainability is the product
 - **Show:** Bullet insight cards — "Trace > label", "Guardrails in code not prompts", "Graceful
@@ -44,11 +47,11 @@
 - **Say:** "Our differentiator isn't a fancier model — it's that a reviewer can see *why* in real
   time, the system degrades safely without the LLM, and guardrails are enforced in code."
 
-## Slide 7 — Semantic evidence search (live-ish)
-- **Show:** Screenshot of `/api/ai/evidence-search` returning ranked, cited chunks for
+## Slide 7 — Semantic evidence search
+- **Show:** Screenshot of `POST /api/credit/evidence/search` returning ranked evidence chunks for
   "inconsistent monthly income".
-- **Say:** "An underwriter asks in natural language; pgvector returns the most relevant extracted
-  evidence by cosine similarity — with a text fallback if the extension is off. This is a real
+- **Say:** "An underwriter asks in natural language; pgvector returns the nearest extracted
+  evidence using vector distance — with a text fallback if the extension is off. This is a real
   review-efficiency win."
 
 ## Slide 8 — Responsible AI & security (KEY SLIDE)
@@ -60,10 +63,10 @@
   This is how we'd earn regulatory trust."
 
 ## Slide 9 — Evidence & impact
-- **Show:** Demo stills: dashboard, APPROVE trace, under-21 → review, JWT login, semantic search,
-  audit log. Plus "9 backend tests + frontend build green".
-- **Say:** "The recorded demo walks the full loop end-to-end, and our tests cover the bias
-  guardrail and vector paths. It runs offline with zero secrets."
+- **Show:** Verified stills: dashboard, APPROVE trace, under-21 → review, JWT login, semantic search,
+  audit log. Plus "13 backend tests + frontend test/build green".
+- **Say:** "The prototype and its tests cover the deterministic underwriting flow, bias guardrail,
+  document extraction, and vector paths. The core flow runs offline with zero AI secrets."
 
 ## Slide 10 — Roadmap & ask
 - **Show:** Roadmap table (Bedrock swap, consent/provenance, fairness metrics, managed pgvector,

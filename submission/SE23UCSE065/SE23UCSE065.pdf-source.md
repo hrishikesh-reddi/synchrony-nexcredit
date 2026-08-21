@@ -3,10 +3,10 @@
 
 **Submission for the Synchrony Hackathon**
 **Candidate roll number:** SE23UCSE065
-**Track:** Credit Intelligence / Real-Time Multi-Model Underwriting
+**Selected challenge:** Problem Statement 3 (PB-3) — Next-Gen Credit Intelligence: Building a Real-Time, Multi-Modal Underwriting Engine
 
-> This document is the written companion to the recorded demo (`SE23UCSE065.zip`)
-> and the pitch deck. It is structured to map 1:1 to the judging rubric:
+> This report is the written companion to the planned roll-numbered source/demo package and
+> pitch deck. It is structured to map 1:1 to the judging rubric:
 > problem → approach → insights → solution → code → evidence → responsible AI → roadmap.
 
 ---
@@ -19,7 +19,7 @@ students, recent immigrants — who may be creditworthy but lack the paper trail
 time, lenders face two pressures: (a) **expand access responsibly**, and (b) **make decisions
 explainable and auditable** under growing AI-governance expectations.
 
-The hackathon asks for a *real-time, multi-modal underwriting engine*. We interpret
+Problem Statement 3 asks for a *real-time, multi-modal underwriting engine*. We interpret
 "multi-modal" as combining **structured alternative-data signals** (income, employment,
 mobile-usage, transaction-behaviour, social signals) with **unstructured document evidence**
 (uploaded income/identity proofs) through a **semantic retrieval + LLM explanation** layer —
@@ -38,7 +38,7 @@ We built a layered prototype, **API-first**, with strict separation between:
 1. **Presentation** (React/Ant Design, role-aware),
 2. **API & business logic** (Spring Boot),
 3. **Persistence** (PostgreSQL + pgvector),
-4. **AI layer** (embeddings + semantic search + guarded LLM explanation),
+4. **Evidence and optional AI layer** (Tika extraction, embeddings, semantic search, and a guarded LLM explanation path),
 5. **Security** (JWT, role-based authorization),
 6. **Governance** (audit trail, bias guardrail, human-review queue).
 
@@ -56,16 +56,17 @@ Design decisions, in priority order:
 
 ## 3. Key insights & findings
 
-1. **Explainability beats raw accuracy for trust.** A reviewer (and a regulator) will accept a
-   modest model far more readily if they can see *why*. Our UI shows the stage trace
+1. **Explainability beats a bare outcome for trust.** A reviewer needs to see *why*. Our UI shows an
+   animated representation of the server-side workflow
    (creditworthiness → fraud → decision → explanation → audit) rather than a single label.
 2. **Guardrails must live in code, not just prompts.** We enforce them server-side
    (`guardrailOk()` + `sanitize()`), because a prompt alone is not a security control.
 3. **Graceful degradation is a feature.** When the LLM or vector DB is unavailable, the system
    still returns a deterministic, transparent explanation and a text-based evidence search.
    This makes the demo robust and signals production maturity.
-4. **Role separation maps to real lending ops.** `APPLICANT` (submit/see own), `UNDERWRITER`
-   (review/upload/decide), `ADMIN` (oversight) mirrors how a credit team actually operates.
+4. **Role-gated actions map to real lending ops.** The prototype provisions `APPLICANT`,
+   `UNDERWRITER`, and `ADMIN` identities; review and upload actions are restricted to
+   `UNDERWRITER`/`ADMIN`. Full per-applicant data isolation is a production hardening item.
 5. **Semantic search over evidence changes the review experience.** An underwriter can ask
    "show me documents that mention inconsistent monthly income" and retrieve relevant evidence
    by meaning, not just keyword — a real efficiency gain.
@@ -131,8 +132,8 @@ sequenceDiagram
     API-->>FE: Decision + trace + explanation
     Note over U,DB: Underwriter uploads evidence → Tika extract → embed → pgvector index
     U->>FE: "Find income inconsistencies"
-    FE->>AI: /api/ai/evidence-search
-    AI->>DB: cosine similarity over evidence_embedding
+    FE->>AI: POST /api/credit/evidence/search
+    AI->>DB: pgvector nearest-neighbour search over evidence_embedding
     AI-->>FE: Ranked, cited evidence hits
 ```
 
@@ -143,8 +144,8 @@ sequenceDiagram
 | Frontend | `src/frontend` (React + Ant Design) |
 | Backend API | `credit/*` controllers & services (Spring Boot) |
 | PostgreSQL (structured) | `CreditApplication`, `AuditLog`, `DocumentEvidence` JPA entities |
-| PostgreSQL + pgvector | `ai/VectorStore.java` (`CREATE EXTENSION vector`, cosine search) |
-| AI / LLM | `ai/ExplanationService.java` (OpenAI-compatible, Bedrock-swappable) |
+| PostgreSQL + pgvector | `ai/VectorStore.java` (`CREATE EXTENSION vector`, L2-distance search) |
+| Optional AI / LLM | `ai/ExplanationService.java` (OpenAI-compatible; native Bedrock adapter is roadmap) |
 | Embeddings | `ai/EmbeddingService.java` (API + deterministic local fallback) |
 | Prompt templates & guardrails | System prompt + `guardrailOk()`/`sanitize()` |
 | Security | `security/*` (JWT, BCrypt, RBAC) |
@@ -175,8 +176,9 @@ honestly splits *live in prototype* vs *production extensions*.
   semantic search UI), `DocumentScanPreview` (labelled simulation), and `AgentPipeline` (the
   staged underwriting flow).
 
-Auth is wired in-UI: a login dialog issues a JWT and shows the active role tag; demo users are
-`applicant` / `underwriter` / `admin`. This makes the **security layer visible**, not just present.
+Auth is wired in-UI: a login dialog issues a JWT and shows the active role tag. The primary demo
+login is `underwriter / underwriter123`; applicant and admin roles are also configured. This makes
+the **security layer visible**, not just present.
 
 ---
 
@@ -205,7 +207,8 @@ Decisions are one of `APPROVE`, `REJECT`, or `REVIEW`.
 ### 5.3 Semantic evidence search — pgvector (`ai/VectorStore.java`)
 On startup (when enabled and the `vector` extension is present) it creates
 `evidence_embedding(id, source, type, content, embedding vector(1536))` and reindexes existing
-evidence. Search uses cosine distance (`1 - (embedding <-> ?::vector)`) with a text fallback.
+evidence. The current SQL uses pgvector's `<->` L2-distance operator, converts that distance to a
+display score, and falls back to token-based text matching if the vector store is unavailable.
 
 ```java
 // ai/VectorStore.java (excerpt)
@@ -213,8 +216,10 @@ evidence. Search uses cosine distance (`1 - (embedding <-> ?::vector)`) with a t
 "FROM evidence_embedding ORDER BY embedding <-> ?::vector LIMIT ?"
 ```
 
-### 5.4 LLM explanation with guardrails (`ai/ExplanationService.java`)
-Calls an OpenAI-compatible `/chat/completions` endpoint with a fixed system prompt that
+### 5.4 Explanation service with an optional guarded LLM (`ai/ExplanationService.java`)
+`POST /api/credit/explanation` returns a plain-language explanation. By default, it uses a
+deterministic fallback derived from the already-computed policy decision. When explicitly enabled
+with a key, the service calls an OpenAI-compatible `/chat/completions` endpoint with a fixed system prompt that
 forbids revealing internal logic, inventing facts, discriminating, or following
 instructions embedded in data. Output is checked by `guardrailOk()` (rejects
 "ignore previous", "jailbreak", etc.) and `sanitize()` before being returned with a
@@ -242,17 +247,19 @@ nexcredit.vector.enabled=${NEXCREDIT_VECTOR_ENABLED:true}
 
 ## 6. Evidence of working solution
 
-- **Build & tests:** `./mvnw test` runs 9 backend tests including
+- **Build & tests:** the verified backend suite contains **13 tests** including
   `CreditUnderwritingBiasGuardrailTest`, `CreditUnderwritingServiceTest`, `VectorStore` paths,
   and `DocumentEvidenceServiceTest`; frontend `CI=true npm test` + `npm run build` pass.
-- **Live demo (recorded, in `SE23UCSE065.zip`):**
+- **Demo flow to record and verify before packaging:**
   1. Dashboard of seeded NTC applicants + inclusion metrics.
   2. Create a Gig-Worker profile (mobile 85 / txn 80 / social 70) → transparent APPROVE.
   3. Stage trace: creditworthiness → fraud → decision → explanation → audit.
   4. Under-21 / low-confidence profile → bias guardrail routes to **human review**.
   5. Underwriter logs in (JWT), uploads income evidence → Tika extraction → pgvector index.
   6. Semantic search: "inconsistent monthly income" retrieves the relevant evidence chunk.
-  7. LLM explanation returned with disclaimer (and deterministic fallback if AI disabled).
+  7. `POST /api/credit/explanation` returns a deterministic explanation and disclaimer in the
+     default configuration; if optional AI is enabled, the response also identifies it with
+     `aiPowered: true`.
   8. Audit log shows the full decision lineage.
 
 ---
@@ -269,11 +276,11 @@ production system would require.
 | Fraud-risk label + age-sensitive bias guardrail → human review | ✅ Live |
 | JWT authn + RBAC (APPLICANT/UNDERWRITER/ADMIN) | ✅ Live |
 | Document upload + Tika extraction + bounded preview | ✅ Live |
-| pgvector semantic evidence search (with text fallback) | ✅ Live |
-| Guarded LLM explanation (offline by default, fallback) | ✅ Live (Bedrock-swappable) |
+| pgvector nearest-neighbour evidence search (with text fallback) | ✅ Live |
+| Deterministic explanation endpoint + optional guarded LLM path | ✅ Implemented; optional AI is off by default |
 | Audit trail + review queue | ✅ Live |
-| 9 backend tests + frontend build | ✅ Live |
-| AWS Bedrock specifically invoked | ⚠️ Config-swappable, not called offline |
+| 13 backend tests + frontend test/build | ✅ Verified |
+| AWS Bedrock specifically invoked | ❌ Not called; a Bedrock adapter is a roadmap item |
 | Live bureau/device/location data | ❌ Simulated/illustrative |
 | OCR + field-verification governance | ❌ Roadmap |
 | Managed cloud deploy + monitoring | ❌ Roadmap (Docker dev only) |
@@ -293,8 +300,8 @@ We treat this as a **decision-support** system, never an autonomous approver.
   size-capped (10 MB); extracted text is bounded and stored as reviewer-only evidence.
 - **Fairness awareness:** the age guardrail is a deliberate bias-control; production would add
   formal fairness evaluation, consented data provenance, and model monitoring.
-- **Honest limitations:** no live bureau/device/location data; Bedrock is config-swappable but
-  not invoked in the offline build; document intelligence is local extraction + semantic index,
+- **Honest limitations:** no live bureau/device/location data; Bedrock is not invoked and requires
+  a future native adapter; document intelligence is local extraction + semantic index,
   not OCR governance.
 
 ---
@@ -303,7 +310,7 @@ We treat this as a **decision-support** system, never an autonomous approver.
 
 | Phase | Item |
 | --- | --- |
-| Near-term | Swap AI client to **AWS Bedrock** (Titan/Claude) via `base-url`/model config; add CORS + refresh tokens |
+| Near-term | Add a native **AWS Bedrock** adapter (Titan/Claude); tighten CORS and add refresh tokens |
 | Governance | Consent management, data-source provenance, immutable (append-only) audit store |
 | Fairness | Automated fairness metrics, reason-code policy controls, bias monitoring dashboards |
 | Data | Real document OCR + field verification; streaming real-time fraud signals via event pipeline |
