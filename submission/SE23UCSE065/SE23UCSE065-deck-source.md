@@ -64,7 +64,7 @@
 
 ## Slide 9 — Evidence & impact
 - **Show:** Verified stills: dashboard, APPROVE trace, under-21 → review, JWT login, semantic search,
-  audit log. Plus "13 backend tests + frontend test/build green".
+  audit log. Plus "14 backend tests + frontend test/build green".
 - **Say:** "The prototype and its tests cover the deterministic underwriting flow, bias guardrail,
   document extraction, and vector paths. The core flow runs offline with zero AI secrets."
 

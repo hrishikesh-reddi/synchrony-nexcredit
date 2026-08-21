@@ -247,7 +247,7 @@ nexcredit.vector.enabled=${NEXCREDIT_VECTOR_ENABLED:true}
 
 ## 6. Evidence of working solution
 
-- **Build & tests:** the verified backend suite contains **13 tests** including
+- **Build & tests:** the verified backend suite contains **14 tests** including
   `CreditUnderwritingBiasGuardrailTest`, `CreditUnderwritingServiceTest`, `VectorStore` paths,
   and `DocumentEvidenceServiceTest`; frontend `CI=true npm test` + `npm run build` pass.
 - **Demo flow to record and verify before packaging:**
@@ -279,7 +279,7 @@ production system would require.
 | pgvector nearest-neighbour evidence search (with text fallback) | ✅ Live |
 | Deterministic explanation endpoint + optional guarded LLM path | ✅ Implemented; optional AI is off by default |
 | Audit trail + review queue | ✅ Live |
-| 13 backend tests + frontend test/build | ✅ Verified |
+| 14 backend tests + frontend test/build | ✅ Verified |
 | AWS Bedrock specifically invoked | ❌ Not called; a Bedrock adapter is a roadmap item |
 | Live bureau/device/location data | ❌ Simulated/illustrative |
 | OCR + field-verification governance | ❌ Roadmap |

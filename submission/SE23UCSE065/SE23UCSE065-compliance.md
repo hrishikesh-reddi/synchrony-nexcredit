@@ -23,7 +23,7 @@
 | Document-evidence pipeline | ✅ | Apache Tika extraction → preview + `evidence_embedding` semantic index |
 | Git / README / run instructions | ✅ | Commits, README, `.env.example`, this file |
 | Architecture diagram | ✅ | `ARCHITECTURE.md` + diagram in submission deck |
-| Test coverage | ✅ | 13 backend tests (incl. bias guardrail, vector store) + frontend smoke/build |
+| Test coverage | ✅ | 14 backend tests (including the bias guardrail and read-only explanation regression) + frontend smoke/build |
 
 ## Honest scope notes (do not overclaim)
 

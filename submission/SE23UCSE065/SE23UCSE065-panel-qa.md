@@ -70,7 +70,7 @@ models, CloudWatch for logging/monitoring, and an append-only audit store. Outli
 roadmap slide.
 
 **Q: Test coverage?**
-A: 13 backend tests (underwriting, bias guardrail, vector store, document evidence, controller,
+A: 14 backend tests (underwriting, bias guardrail, read-only explanation, document evidence, controller,
 health) plus a frontend smoke test and production build — all green.
 
 ## Trap questions (answer calmly)

@@ -43,7 +43,7 @@ NexCredit is a **governed underwriting workbench**, not an autonomous approval b
   fallback, with guardrails) that explains any decision in plain language.
 - Secures the API with **JWT auth and roles** (applicant / underwriter / admin).
 
-All of this runs on a standard Spring Boot 3 and React 18 and PostgreSQL/pgvector stack, with 13/13
+All of this runs on a standard Spring Boot 3 and React 18 and PostgreSQL/pgvector stack, with 14/14
 tests green.
 
 ## 3. How it maps to Synchrony PRISM (the sell)

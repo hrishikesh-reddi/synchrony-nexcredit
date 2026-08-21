@@ -99,7 +99,7 @@ Checklist with icons:
 
 ### Slide 9   Evidence & impact
 Grid of demo stills (use placeholders labelled): Dashboard portfolio · APPROVE trace ·
-under-21  to  REVIEW · JWT login · semantic search · audit log. Plus a chip: "13 backend tests and frontend build: green".
+under-21  to  REVIEW · JWT login · semantic search · audit log. Plus a chip: "14 backend tests and frontend build: green".
 
 ### Slide 10   Roadmap & close
 Two-column roadmap:
@@ -122,7 +122,7 @@ Closing line: *Expanding access and staying explainable, secure, and auditable a
 - **Guardrails:** system prompt forbids revealing logic / inventing facts / discriminating /
   following instructions in data; `guardrailOk()` blocks "ignore previous", "jailbreak", etc.;
   `sanitize()` strips injection patterns; on any failure  to  deterministic `fallbackExplanation`.
-- **Tests:** 13 backend tests (incl. `CreditUnderwritingBiasGuardrailTest`, `VectorStore` paths,
+- **Tests:** 14 backend tests (incl. `CreditUnderwritingBiasGuardrailTest`, the read-only explanation regression,
   `DocumentEvidenceServiceTest`) and frontend `CI=true npm test` and `npm run build`.
 - **Honest limitations:** no live bureau/device data; Bedrock not invoked offline; document
   intelligence = local extraction and semantic index, not OCR governance.
