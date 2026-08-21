@@ -10,7 +10,7 @@ class CreditApplicationServiceTest {
     @Test
     void rejects_a_supporting_document_larger_than_ten_megabytes() {
         CreditApplicationRepository repository = org.mockito.Mockito.mock(CreditApplicationRepository.class);
-        CreditApplicationService service = new CreditApplicationService(repository, org.mockito.Mockito.mock(AuditLogService.class));
+        CreditApplicationService service = new CreditApplicationService(repository, org.mockito.Mockito.mock(AuditLogService.class), org.mockito.Mockito.mock(CreditUnderwritingService.class));
         MockMultipartFile oversizedFile = new MockMultipartFile(
                 "file", "statement.pdf", "application/pdf", new byte[10 * 1024 * 1024 + 1]);
 

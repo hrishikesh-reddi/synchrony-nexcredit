@@ -15,10 +15,14 @@ public class CreditApplicationService {
     private static final long MAX_DOCUMENT_SIZE_BYTES = 10L * 1024 * 1024;
     private final CreditApplicationRepository repository;
     private final AuditLogService auditLogService;
+    private final CreditUnderwritingService underwritingService;
 
-    public CreditApplicationService(CreditApplicationRepository repository, AuditLogService auditLogService) {
+    public CreditApplicationService(CreditApplicationRepository repository,
+                                    AuditLogService auditLogService,
+                                    CreditUnderwritingService underwritingService) {
         this.repository = repository;
         this.auditLogService = auditLogService;
+        this.underwritingService = underwritingService;
     }
 
     public List<CreditApplication> getAllApplications() {
@@ -26,6 +30,11 @@ public class CreditApplicationService {
     }
 
     public CreditApplication save(CreditApplication application) {
+        CreditDecision decision = underwritingService.analyze(application);
+        application.setCreditDecision(decision.getCreditDecision());
+        application.setConfidenceScore(decision.getConfidenceScore());
+        application.setReasoning(decision.getReasoning());
+        application.setFraudRisk(decision.getFraudRisk());
         if (application.getReviewStatus() == null) {
             applyReviewStatus(application);
         }
@@ -83,6 +92,14 @@ public class CreditApplicationService {
                 || "HIGH".equals(application.getFraudRisk())
                 || (application.getAge() != null && application.getAge() < 21
                 && "REJECTED".equals(application.getCreditDecision()));
-        application.setReviewStatus(requiresReview ? ReviewStatus.PENDING_REVIEW : ReviewStatus.REVIEWED);
+        if (requiresReview) {
+            application.setReviewStatus(ReviewStatus.PENDING_REVIEW);
+        } else if ("APPROVED".equals(application.getCreditDecision())) {
+            application.setReviewStatus(ReviewStatus.AUTO_APPROVED);
+        } else if ("REJECTED".equals(application.getCreditDecision())) {
+            application.setReviewStatus(ReviewStatus.AUTO_REJECTED);
+        } else {
+            application.setReviewStatus(ReviewStatus.REVIEWED);
+        }
     }
 }
