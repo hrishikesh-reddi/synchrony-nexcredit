@@ -47,15 +47,15 @@ Applicant / Underwriter
         │
         ▼
 React decision workbench
-        │  HTTPS + authenticated API (production)
+        │  HTTPS and authenticated API (production)
         ▼
 Spring Boot orchestration API
- ├── Policy decision service        → deterministic eligibility rules
- ├── Model-scoring adapter          → calibrated ML probability
- ├── Fraud and data-quality checks  → anomalies / missing consent / conflicts
- ├── Explanation service            → signal contributions; optional LLM wording
- ├── Review routing service          → thresholds, reasons, reviewer SLA
- └── Evidence/audit service          → immutable event history
+ ├── Policy decision service         to  deterministic eligibility rules
+ ├── Model-scoring adapter           to  calibrated ML probability
+ ├── Fraud and data-quality checks   to  anomalies / missing consent / conflicts
+ ├── Explanation service             to  signal contributions; optional LLM wording
+ ├── Review routing service           to  thresholds, reasons, reviewer SLA
+ └── Evidence/audit service           to  immutable event history
         │
         ├── PostgreSQL: applications, decisions, review cases, audit events
         ├── Object storage: consented documents
@@ -67,7 +67,7 @@ The design deliberately separates **policy**, **prediction**, **explanation**, a
 
 ## Highest-value implementation sequence
 
-### P0 — Make the decision measurable
+### P0   Make the decision measurable
 
 Implement a `DecisionEvidence` object for every analysis. It must record:
 
@@ -82,7 +82,7 @@ Implement a `DecisionEvidence` object for every analysis. It must record:
 
 **Demo acceptance test:** open any application, see exactly which signals and policy version created the result, then complete a reviewer action and see the linked event.
 
-### P1 — Add real ML, but keep it advisory
+### P1   Add real ML, but keep it advisory
 
 Train a compact, reproducible baseline model using a public credit-risk dataset. Serve it through a separate Python/FastAPI service or a serialized model adapter. The model returns `riskProbability`, `modelVersion`, and feature contributions; the Spring Boot policy remains the final routing control.
 
@@ -98,7 +98,7 @@ Required engineering assets:
 
 **Demo acceptance test:** show the policy result beside the advisory risk probability and explain why a disagreement is routed to a reviewer.
 
-### P2 — Build an evidence-aware fraud and data-quality gate
+### P2   Build an evidence-aware fraud and data-quality gate
 
 Create a `RiskFlag` entity and service. Start with transparent signals, not fabricated “AI detection”:
 
@@ -112,7 +112,7 @@ Each flag needs a severity, evidence, rule ID, created time, and resolution. Hig
 
 **Demo acceptance test:** submit a deliberately inconsistent application; show the flag, the review route, and the audit event.
 
-### P3 — Extend document evidence beyond extraction
+### P3   Extend document evidence beyond extraction
 
 NexCredit now extracts a bounded local text preview from uploaded documents using Apache Tika and persists an extraction status. Next, extract named fields with confidence, show them to the reviewer, and require reviewer confirmation before any extracted value affects an application. Store only consented documents and a content hash.
 
@@ -120,7 +120,7 @@ Later, add embeddings and pgvector only for approved evidence retrieval. The sys
 
 **Demo acceptance test:** upload a sample bank statement, display extracted income evidence, accept or reject the evidence, and show that action in the audit trail.
 
-### P4 — Add LLM assistance with bounded responsibility
+### P4   Add LLM assistance with bounded responsibility
 
 Use Bedrock only for a constrained `ExplanationAssistant`:
 
@@ -133,7 +133,7 @@ This makes GenAI useful without letting it become an ungoverned decision maker. 
 
 **Demo acceptance test:** a reviewer requests a plain-language explanation; the UI shows that the policy/model result already existed and that the reviewer controls the final action.
 
-### P5 — Production-ready controls
+### P5   Production-ready controls
 
 1. Add authentication and role-based access: applicant, underwriter, supervisor, auditor.
 2. Replace local upload storage with encrypted object storage and signed URLs.
@@ -154,7 +154,7 @@ This makes GenAI useful without letting it become an ungoverned decision maker. 
 
 ## Pitch language
 
-> NexCredit is a governed underwriting workbench for thin-file customers. Instead of replacing a lender's credit decision platform, it operationalises the difficult layer around it: combining permitted alternative signals, policy controls, fraud/data-quality checks, human escalation, and an evidence trail. The result is not just a decision—it is a decision an underwriter, auditor, and customer-facing team can understand and challenge.
+> NexCredit is a governed underwriting workbench for thin-file customers. Instead of replacing a lender's credit decision platform, it operationalises the difficult layer around it: combining permitted alternative signals, policy controls, fraud/data-quality checks, human escalation, and an evidence trail. The result is not just a decision it is a decision an underwriter, auditor, and customer-facing team can understand and challenge.
 
 ## Submission priorities
 

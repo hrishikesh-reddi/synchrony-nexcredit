@@ -4,13 +4,13 @@
 [React / Ant Design]
   Dashboard · New Application · Review Queue · Audit Trail
                |
-               | REST / JSON + multipart upload
+               | REST / JSON and multipart upload
                v
 [Spring Boot API]
   CreditController -> CreditUnderwritingService -> CreditApplicationRepository
                        |                            |
-                       +-> AuditLogService ----------+
-                       +-> bias/review policy
+ and -> AuditLogService ----------+
+ and -> bias/review policy
                |
                v
 [PostgreSQL]

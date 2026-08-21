@@ -1,4 +1,4 @@
-# NexCredit AI — Pitch Context
+# NexCredit AI   Pitch Context
 
 ## One-line pitch
 
@@ -38,7 +38,7 @@ NexCredit is intentionally not presented as a fully autonomous loan-approval sys
 
 ## Synchrony alignment
 
-The project aligns with a lender’s need to expand access while keeping decisions explainable, controlled, and auditable. Position it as an agent-oriented underwriting workflow—not a claim of deployed autonomous AI—and connect it to Synchrony’s publicly reported investment in data-driven underwriting and AI governance.
+The project aligns with a lender’s need to expand access while keeping decisions explainable, controlled, and auditable. Position it as an agent-oriented underwriting workflow not a claim of deployed autonomous AI and connect it to Synchrony’s publicly reported investment in data-driven underwriting and AI governance.
 
 ## Future roadmap
 
