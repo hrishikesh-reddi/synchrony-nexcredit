@@ -51,12 +51,12 @@ assert_zip_contains() {
 assert_fails_with "required demo video" "$FIXTURE/build-submission.sh"
 
 printf 'RIFF this is a WAV payload renamed as MP4\n' > \
-  "$FIXTURE/submission/$ROLL/$ROLL-demo.mp4"
+  "$FIXTURE/submission/$ROLL/$ROLL.mp4"
 assert_fails_with "not a valid MP4 video" "$FIXTURE/build-submission.sh"
 
 ffmpeg -loglevel error -f lavfi -i color=c=navy:s=160x90:d=1 \
   -an -c:v libx264 -pix_fmt yuv420p -movflags +faststart -y \
-  "$FIXTURE/submission/$ROLL/$ROLL-demo.mp4"
+  "$FIXTURE/submission/$ROLL/$ROLL.mp4"
 
 printf 'final report\n' > "$FIXTURE/submission/$ROLL.pdf"
 mkdir -p "$FIXTURE/uploads" "$FIXTURE/node_modules/pkg" "$FIXTURE/build" \
@@ -74,7 +74,7 @@ printf 'stale archive\n' > "$FIXTURE/submission/archive/old.zip"
 "$FIXTURE/build-submission.sh"
 ARCHIVE="$FIXTURE/submission/$ROLL.zip"
 
-assert_zip_contains "$ARCHIVE" "$ROLL-demo.mp4"
+assert_zip_contains "$ARCHIVE" "$ROLL.mp4"
 assert_zip_contains "$ARCHIVE" "$ROLL.pdf"
 assert_zip_contains "$ARCHIVE" "$ROLL-code/README.md"
 assert_zip_excludes "$ARCHIVE" "$ROLL-code/submission/"

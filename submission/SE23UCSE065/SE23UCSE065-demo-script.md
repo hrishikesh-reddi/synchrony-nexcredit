@@ -107,4 +107,4 @@ Every actual analysis creates a linked audit record. Reviewer action creates ano
 
 After export, confirm that `SE23UCSE065.mp4` contains a real video stream, opens normally, has audible narration, and shows no private information. Copy it to:
 
-`submission/SE23UCSE065/SE23UCSE065-demo.mp4`
+`submission/SE23UCSE065/SE23UCSE065.mp4`

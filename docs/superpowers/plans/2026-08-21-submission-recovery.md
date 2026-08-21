@@ -103,7 +103,7 @@
 ### Task 5: Record and validate the demo
 
 **Files:**
-- Create: `submission/SE23UCSE065/SE23UCSE065-demo.mp4`
+- Create: `submission/SE23UCSE065/SE23UCSE065.mp4`
 
 **Interfaces:**
 - Consumes: the verified local application and final demo script.
@@ -129,4 +129,3 @@
 - [ ] Run `unzip -t submission/SE23UCSE065.zip`; expect no errors.
 - [ ] Extract to a temporary directory and verify it contains the real MP4, README, and current `com/synchrony/nexcredit` sources without old `com/syscomz` scaffold files.
 - [ ] Confirm the final attachments are exactly `SE23UCSE065.pdf` and `SE23UCSE065.zip` and send by 10:30 AM IST.
-

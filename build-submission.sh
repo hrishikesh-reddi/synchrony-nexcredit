@@ -11,7 +11,7 @@ ROLL="SE23UCSE065"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 OUT="$ROOT/submission"
 SUBMISSION_SOURCES="$OUT/$ROLL"
-DEMO="$SUBMISSION_SOURCES/$ROLL-demo.mp4"
+DEMO="$SUBMISSION_SOURCES/$ROLL.mp4"
 FINAL_PDF="$OUT/$ROLL.pdf"
 ZIP="$OUT/$ROLL.zip"
 REPRODUCIBLE_TIMESTAMP="200001010000"
@@ -72,9 +72,9 @@ echo "==> Building verified submission bundle for $ROLL"
 while IFS= read -r -d '' companion; do
   cp "$companion" "$BUNDLE/$(basename "$companion")"
 done < <(find "$SUBMISSION_SOURCES" -maxdepth 1 -type f \
-  ! -name "$ROLL-demo.mp4" -print0)
+  ! -name "$ROLL.mp4" -print0)
 cp "$ROOT/README.md" "$BUNDLE/$ROLL-readme.md"
-cp "$DEMO" "$BUNDLE/$ROLL-demo.mp4"
+cp "$DEMO" "$BUNDLE/$ROLL.mp4"
 
 if [[ -f "$FINAL_PDF" ]]; then
   cp "$FINAL_PDF" "$BUNDLE/$ROLL.pdf"
@@ -125,5 +125,5 @@ rm -f "$ZIP"
 validate_demo_video "$DEMO"
 
 echo "==> Done: $ZIP"
-echo "    Validated video: $ROLL-demo.mp4"
+echo "    Validated video: $ROLL.mp4"
 echo "    Submit $ROLL.zip and $ROLL.pdf to Technologyinterns@syf.com."
