@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  :root { --ink:#0c1f33; --body:#36485c; --muted:#7a8aa0; --accent:#1f6feb; --line:#e6ebf2; --soft:#eef4ff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--body); font-size: 11.5px; line-height: 1.62; }
+  .page { padding: 54px 60px; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  h1, h2, h3, h4 { color: var(--ink); line-height: 1.2; margin: 0 0 10px; }
+  h1 { font-size: 26px; letter-spacing: -0.02em; }
+  h2 { font-size: 17px; margin-top: 22px; padding-bottom: 6px; border-bottom: 2px solid var(--soft); }
+  h3 { font-size: 13.5px; margin-top: 16px; }
+  p { margin: 0 0 10px; }
+  ul { margin: 0 0 10px; padding-left: 18px; }
+  li { margin-bottom: 4px; }
+  small { color: var(--muted); }
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.12em; font-size: 9.5px; font-weight: 700; color: var(--accent); }
+  .cover { height: 100vh; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(150deg,#0c1f33,#16324f 60%, #1f6feb); color:#fff; }
+  .cover .eyebrow { color:#9fc0ff; }
+  .cover h1 { color:#fff; font-size: 44px; line-height: 1.05; margin: 14px 0 10px; }
+  .cover h1 span { color:#7fb0ff; }
+  .cover .sub { font-size: 16px; color:#d4e1f2; max-width: 620px; }
+  .cover .meta { margin-top: 34px; font-size: 12.5px; color:#c4d2e0; line-height: 1.9; }
+  .cover .tag { display:inline-block; border:1px solid #5e7ba8; border-radius: 999px; padding: 5px 14px; font-size: 11px; color:#cfe0f5; margin-top: 18px; }
+  .kpi-row { display:flex; gap: 14px; margin: 14px 0 4px; flex-wrap: wrap; }
+  .kpi { flex:1; min-width: 130px; border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fff; }
+  .kpi b { display:block; font-size: 21px; color: var(--ink); }
+  .kpi span { font-size: 10.5px; color: var(--muted); }
+  .card { border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin: 10px 0; background:#fff; }
+  .card h3 { margin-top: 0; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  table { width:100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 11px; }
+  th, td { text-align:left; padding: 8px 10px; border-bottom:1px solid var(--line); vertical-align: top; }
+  th { background: var(--soft); color: var(--ink); font-weight: 600; }
+  .flow { display:flex; align-items:stretch; gap:0; margin: 14px 0; }
+  .stage { flex:1; border:1px solid var(--line); border-radius:10px; padding:12px; background:#fff; position:relative; }
+  .stage .n { display:inline-grid; place-items:center; width:24px; height:24px; border-radius:7px; background:var(--soft); color:var(--accent); font-weight:700; font-size:11px; margin-bottom:8px; }
+  .stage h4 { margin:0 0 4px; font-size:12px; }
+  .stage p { margin:0; font-size:10.5px; color:var(--muted); }
+  .arch { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+  .arch .box { border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:#fff; }
+  .arch .box.blue { background: var(--soft); border-color:#cfe0ff; }
+  code { background:#f3f6fb; border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:10.5px; color:#16324f; }
+  .pill { display:inline-block; font-size:10px; padding:2px 8px; border-radius:999px; background:var(--soft); color:var(--accent); margin-right:5px; }
+  .warn { border-left:3px solid var(--accent); background:#f6f9ff; padding:10px 14px; border-radius:8px; margin:10px 0; }
+  .foot { margin-top: 18px; font-size: 10px; color: var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page cover">
+  <div class="eyebrow">Synchrony Hackathon 2026 · Problem Statement 3</div>
+  <h1>NexCredit <span>AI</span></h1>
+  <div class="sub">Contextual credit decisioning for New-to-Credit and thin-file applicants — turning alternative data, document evidence, and human review into one explainable, auditable decision.</div>
+  <div class="tag">Deterministic · Explainable · Human-in-the-loop</div>
+  <div class="meta">
+    <strong>Candidate:</strong> Gavinolla Hrishikesh Reddy (SE23UCSE065)<br/>
+    Mahindra University, B.Tech Computer Science<br/>
+    <strong>Submission artefacts:</strong> this report · demonstration video (SE23UCSE065.mp4) · source code zip (SE23UCSE065.zip)
+  </div>
+</section>
+
+<!-- 1. EXECUTIVE SUMMARY -->
+<section class="page">
+  <div class="eyebrow">Section 1</div>
+  <h1>Executive summary</h1>
+  <p>More than a billion people worldwide are <em>credit invisible</em>: they have no traditional bureau history, so rule-based scorecards either reject them outright or decline to decide. Synchrony's Problem Statement 3 asks us to decide credit for these New-to-Credit and thin-file applicants using consented alternative data, in a way that is fair, explainable, and defensible.</p>
+  <p><strong>NexCredit AI</strong> is a working prototype that does exactly that. It ingests alternative-data signals (mobile usage, transaction behaviour, social signal, income, employment), runs a <strong>deterministic, explainable</strong> underwriting function, routes anything uncertain or risky to a <strong>human reviewer</strong>, attaches <strong>document evidence</strong> (income proof, bank statements, KYC, utility, employment, tax), and writes every action to an <strong>audit trail</strong>. The outcome is never a black box: each decision ships with its reasoning, factor contributions, and the reviewer who signed off.</p>
+  <div class="kpi-row">
+    <div class="kpi"><b>5</b><span>workspace views</span></div>
+    <div class="kpi"><b>6</b><span>document proof types</span></div>
+    <div class="kpi"><b>13</b><span>seeded applicants</span></div>
+    <div class="kpi"><b>0</b><span>trained models in path</span></div>
+  </div>
+  <div class="warn">This is a <strong>prototype of a decision-support system</strong>, not an autonomous agent and not a production-trained risk model. The underwriting logic is deterministic and inspectable by design; "stages" in the UI are a workflow visualisation, not independent agents.</div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section class="page">
+  <div class="eyebrow">Section 2</div>
+  <h1>The problem we are solving</h1>
+  <h3>Why thin-file applicants are excluded</h3>
+  <ul>
+    <li><strong>No bureau footprint.</strong> A student, gig worker, or recent migrant has little or no repayment history, so a classic scorecard returns "no hit" and the application is declined by default.</li>
+    <li><strong>One score, no story.</strong> Traditional models reduce a person to a single number with opaque cut-offs, offering no path to a yes and no explanation for a no.</li>
+    <li><strong>Unfair proxies.</strong> Naive automation can bake in bias (zip code, device, demographics). Inclusion requires guardrails and human oversight.</li>
+    <li><strong>No evidence.</strong> Even when alt-data exists, it is rarely tied to the decision or to documents a reviewer can inspect.</li>
+  </ul>
+  <h3>What "good" looks like</h3>
+  <p>A New-to-Credit applicant should be able to present consented signals and documents, receive a <strong>timely, understandable</strong> decision, and — when the case is genuinely uncertain — reach a <strong>human reviewer</strong> who can approve with confidence and leave a traceable record.</p>
+  <div class="card"><h3>Our design principles</h3>
+    <ul>
+      <li><strong>Explainability first.</strong> Every outcome is computed from visible rules and shown with its factor contributions.</li>
+      <li><strong>Human-in-the-loop.</strong> Low-confidence or elevated-fraud cases escalate; the system never silently approves what it is unsure about.</li>
+      <li><strong>Evidence at every step.</strong> Decisions reference the documents that support them.</li>
+      <li><strong>Auditability.</strong> Each workflow event is logged with who, what, and when.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3. SOLUTION -->
+<section class="page">
+  <div class="eyebrow">Section 3</div>
+  <h1>Solution overview</h1>
+  <p>The applicant journey is a single, observable pipeline. A new application is scored, explained, optionally escalated for review, supported by documents, and recorded — all inside one workspace.</p>
+  <div class="flow">
+    <div class="stage"><div class="n">1</div><h4>Intake</h4><p>Applicant profile + alternative-data signals captured in a guided form.</p></div>
+    <div class="stage"><div class="n">2</div><h4>Score</h4><p>Deterministic weighted scoring across income, behaviour, stability, and fraud.</p></div>
+    <div class="stage"><div class="n">3</div><h4>Decide</h4><p>Approved / Rejected / Refer, with confidence and reasoning.</p></div>
+    <div class="stage"><div class="n">4</div><h4>Review</h4><p>Referred cases reach a human reviewer who approves or rejects.</p></div>
+    <div class="stage"><div class="n">5</div><h4>Evidence &amp; Audit</h4><p>Documents attached; every action written to the audit ledger.</p></div>
+  </div>
+  <div class="warn">The five stages are a <strong>workflow sequence shown to the operator</strong>, not five autonomous agents. They share one deterministic engine; nothing acts on its own.</div>
+  <h3>Where the value lands</h3>
+  <ul>
+    <li>Thin-file applicants get a decision instead of a silent decline.</li>
+    <li>Reviewers get a ranked, evidence-backed queue instead of a raw spreadsheet.</li>
+    <li>Risk and compliance get a complete, queryable audit history.</li>
+  </ul>
+</section>
+
+<!-- 4. ARCHITECTURE -->
+<section class="page">
+  <div class="eyebrow">Section 4</div>
+  <h1>System architecture</h1>
+  <p>A conventional three-tier web app. The backend owns the deterministic decisioning and persistence; the frontend is a read-and-act workbench; an optional local LLM can draft explanations but is off by default so the demo is fully reproducible.</p>
+  <div class="arch">
+    <div class="box blue"><h3>Frontend — React 18</h3><p>Workbench (5 views), application drawer, command palette (⌘K), detail drawer. Talks to the API over HTTPS with a bearer token.</p></div>
+    <div class="box"><h3>Backend — Spring Boot 3</h3><p>REST API for applications, analysis, review, audit, and evidence search. Hosts the deterministic underwriting service and the fraud-routing rule.</p></div>
+    <div class="box"><h3>Data — PostgreSQL + pgvector</h3><p>Applications, audit logs, and (when available) vector embeddings for semantic evidence search. Falls back to text retrieval locally.</p></div>
+    <div class="box blue"><h3>Evidence — Apache Tika + vector search</h3><p>Uploaded documents are parsed (Tika), embedded, and searched semantically; text fallback keeps the flow working without a model.</p></div>
+  </div>
+  <h3>Request flow</h3>
+  <table>
+    <tr><th>Step</th><th>Caller</th><th>Action</th></tr>
+    <tr><td>Create</td><td>Frontend</td><td><code>POST /api/credit/applications</code></td></tr>
+    <tr><td>Analyze</td><td>Frontend</td><td><code>POST /api/credit/analyze</code> → deterministic score + reasoning</td></tr>
+    <tr><td>Review</td><td>Reviewer</td><td><code>POST /api/credit/review/{id}</code> → APPROVED / REJECTED</td></tr>
+    <tr><td>Evidence</td><td>Frontend</td><td><code>POST /api/credit/evidence/search</code></td></tr>
+    <tr><td>Audit</td><td>Backend</td><td><code>GET /api/audit/logs</code> → immutable event ledger</td></tr>
+  </table>
+  <p><small>Optional: a local LLM can be enabled to draft plain-language explanations. It is disabled by default; the shipped demo is deterministic and does not require any model.</small></p>
+</section>
+
+<!-- 5. TECH STACK -->
+<section class="page">
+  <div class="eyebrow">Section 5</div>
+  <h1>Technology stack</h1>
+  <div class="grid3">
+    <div class="card"><h3>Backend</h3><ul><li>Java 17 / Spring Boot 3</li><li>Spring Security (bearer auth)</li><li>PostgreSQL + pgvector</li><li>Maven build</li></ul></div>
+    <div class="card"><h3>Frontend</h3><ul><li>React 18</li><li>Ant Design</li><li>Apache ECharts (charts)</li><li>Vite / CRA build</li></ul></div>
+    <div class="card"><h3>Evidence &amp; Ops</h3><ul><li>Apache Tika (parse)</li><li>pgvector (embeddings)</li><li>Docker (optional)</li><li>JUnit (backend tests)</li></ul></div>
+  </div>
+  <h3>Why this stack</h3>
+  <p>Spring Boot gives a boring, reliable API that is easy to audit; React + Ant Design let us ship a dense, professional workbench fast; PostgreSQL + pgvector cover both relational records and semantic search in one place. Nothing here is exotic on purpose — a credit system should be explainable end to end, including its own code.</p>
+</section>
+
+<!-- 6. FEATURE WALKTHROUGH -->
+<section class="page">
+  <div class="eyebrow">Section 6</div>
+  <h1>Feature walkthrough</h1>
+  <p>The workbench has five navigation views, reached from the chip nav above the page heading or the ⌘K command palette.</p>
+  <div class="card"><h3>1 · Command Center</h3><p>Portfolio health at a glance: KPI strip (applications, approval rate, pending review, inclusion rate) with sparklines, a 12-week application-volume trend, a live decision stream, a portfolio-mix donut, inclusion-impact stats, and a recent-activity feed from the audit ledger. A <strong>Start application</strong> button opens the intake drawer.</p></div>
+  <div class="card"><h3>2 · Underwriting Studio</h3><p>The application portfolio as a filterable table (All / Approved / In review / Rejected). Selecting a row previews the applicant inline with a Risk Radar, a decision pill, and a link to the full decision drawer (DecisionCard, deterministic trace, fraud heatmap, traditional-score comparison). A decision-distribution donut summarises the book.</p></div>
+  <div class="card"><h3>3 · Evidence Intelligence</h3><p>Six document proof types (income, bank statement, identity/KYC, utility, employment, tax), each with extracted fields, plus semantic search across evidence using Tika parsing and vector (or text) retrieval.</p></div>
+  <div class="card"><h3>4 · Review &amp; Governance</h3><p>A review queue of referred cases with one-click approve/reject, an outcome-distribution donut, and a filterable audit timeline — every decision, reviewer note, and timestamp.</p></div>
+  <div class="card"><h3>5 · Platform Architecture</h3><p>The truthful, implemented topology alongside a clearly separated "Production evolution" panel for the road beyond the prototype.</p></div>
+</section>
+
+<!-- 7. DECISION ENGINE -->
+<section class="page">
+  <div class="eyebrow">Section 7</div>
+  <h1>The deterministic decision engine</h1>
+  <p>The engine is a fixed function of visible inputs — no trained weights, no randomness. This is what makes every decision explainable and reproducible.</p>
+  <h3>Signals used</h3>
+  <table>
+    <tr><th>Signal</th><th>Meaning</th></tr>
+    <tr><td>Income adequacy</td><td>Annual income vs. obligations and cost-of-living</td></tr>
+    <tr><td>Rent / obligation burden</td><td>Share of income committed to fixed obligations</td></tr>
+    <tr><td>Employment stability</td><td>Type and tenure (e.g. salaried vs. student vs. gig)</td></tr>
+    <tr><td>Mobile usage score</td><td>Consented device/usage signal (0–100)</td></tr>
+    <tr><td>Transaction behaviour score</td><td>Consented cash-flow regularity (0–100)</td></tr>
+    <tr><td>Social signal score</td><td>Consented network/identity signal (0–100)</td></tr>
+    <tr><td>Age &amp; bureau absence</td><td>Thin-file penalty applied transparently</td></tr>
+    <tr><td>Fraud risk</td><td>Score-based LOW / MEDIUM / HIGH routing</td></tr>
+  </table>
+  <h3>How a decision is reached</h3>
+  <ul>
+    <li>Each signal maps to a banded contribution; bands are documented, not learned.</li>
+    <li>A weighted composite score and a <strong>confidence</strong> value are produced.</li>
+    <li><strong>High confidence + clean fraud</strong> → APPROVED.</li>
+    <li><strong>Clear adverse signal</strong> → REJECTED, with the triggering factors named.</li>
+    <li><strong>Uncertain or elevated-fraud</strong> → REFERRED to a human reviewer (no silent yes).</li>
+  </ul>
+  <div class="warn">Because the logic is deterministic, the same inputs always yield the same decision and the same explanation — a property a real credit desk can defend to a regulator.</div>
+</section>
+
+<!-- 8. EVIDENCE -->
+<section class="page">
+  <div class="eyebrow">Section 8</div>
+  <h1>Alternative-data evidence</h1>
+  <p>Decisions are stronger when they point at documents. Evidence Intelligence organises six proof classes and lets a reviewer search them by meaning, not just by filename.</p>
+  <div class="grid2">
+    <div class="card"><h3>Income proof</h3><p>Pay slips / income statements; extracts employer, amount, period.</p></div>
+    <div class="card"><h3>Bank statement</h3><p>Cash-flow history; supports transaction-behaviour scoring.</p></div>
+    <div class="card"><h3>Identity / KYC</h3><p>ID document; verifies the applicant is who they claim.</p></div>
+    <div class="card"><h3>Utility bill</h3><p>Address and stability evidence.</p></div>
+    <div class="card"><h3>Employment letter</h3><p>Confirms employment type and tenure.</p></div>
+    <div class="card"><h3>Tax document</h3><p>Independent income corroboration.</p></div>
+  </div>
+  <h3>Pipeline</h3>
+  <p>An uploaded file is parsed with <strong>Apache Tika</strong>, split into chunks, embedded (pgvector when available), and indexed. Semantic search runs the same embeddings; if the vector store is unavailable the system falls back to text retrieval so the feature never breaks. Each extracted field is shown next to the decision it supports.</p>
+</section>
+
+<!-- 9. FRAUD + REVIEW -->
+<section class="page">
+  <div class="eyebrow">Section 9</div>
+  <h1>Fraud routing &amp; human review</h1>
+  <div class="grid2">
+    <div class="card"><h3>Fraud-risk routing</h3><p>A <strong>score-based</strong> prototype classifies each case LOW / MEDIUM / HIGH. Elevated risk routes the case to review and lowers auto-approval likelihood. This is prototype routing, not device-fingerprint, graph, or velocity fraud detection — those belong in the production evolution.</p></div>
+    <div class="card"><h3>Human-in-the-loop</h3><p>Referred cases appear in the Review queue. A reviewer approves or rejects with one click; the note and outcome are written to the audit ledger. A human always owns the final call on anything the engine is unsure about.</p></div>
+  </div>
+  <h3>Audit trail</h3>
+  <p>Every analysed, reviewed, and escalated event is appended to an immutable log: <code>applicationId</code>, <code>decision</code>, <code>reasoning</code>, <code>timestamp</code>. The Review &amp; Governance view filters this timeline so a compliance officer can reconstruct any decision in seconds.</p>
+</section>
+
+<!-- 10. TRUTHFULNESS -->
+<section class="page">
+  <div class="eyebrow">Section 10</div>
+  <h1>Truthfulness &amp; scope</h1>
+  <p>We state plainly what this system is and is not, because a credit tool must not overclaim.</p>
+  <table>
+    <tr><th>True</th><th>Not true</th></tr>
+    <tr><td>Deterministic, explainable underwriting</td><td>A trained production risk model</td></tr>
+    <tr><td>One visualised workflow (5 stages)</td><td>Autonomous multi-agent runtime</td></tr>
+    <tr><td>Local fallback, no model required</td><td>Remote LLM always-on</td></tr>
+    <tr><td>pgvector when present, text fallback</td><td>Vector search guaranteed everywhere</td></tr>
+    <tr><td>Score-based fraud routing</td><td>Device / graph / velocity detection</td></tr>
+  </table>
+  <div class="warn">The "stages" in the UI are a workflow visualisation for the operator. They are not independent agents and nothing executes without the deterministic engine and (where required) a human reviewer.</div>
+</section>
+
+<!-- 11. DEMO GUIDE -->
+<section class="page">
+  <div class="eyebrow">Section 11</div>
+  <h1>Demo guide &amp; run instructions</h1>
+  <h3>Local services</h3>
+  <ul>
+    <li>Backend: <code>./mvnw spring-boot:run</code> → <code>http://localhost:8081</code></li>
+    <li>Frontend: <code>npm start</code> (in <code>src/frontend</code>) → <code>http://localhost:3000</code></li>
+    <li>Demo account (auto-authenticated in the UI): <code>underwriter / underwriter123</code></li>
+  </ul>
+  <h3>Recorded walkthrough</h3>
+  <ul>
+    <li>Landing → <strong>Open live workbench</strong>.</li>
+    <li>Command Center KPIs, trend, live stream, donut, activity feed.</li>
+    <li><strong>Start application</strong> → fill the guided form → see the deterministic decision.</li>
+    <li>Underwriting Studio → filter, select a row, open the full decision drawer.</li>
+    <li>Evidence Intelligence → browse proof types, run a semantic search.</li>
+    <li>Review &amp; Governance → approve/reject a referred case, watch the audit timeline.</li>
+    <li>⌘K command palette jumps to any applicant or view.</li>
+  </ul>
+  <p><small>If the backend is unreachable, the frontend falls back to a bundled seed dataset (13 applicants, 12 audit entries) so the workbench is never empty during a demo.</small></p>
+</section>
+
+<!-- 12. FUTURE -->
+<section class="page">
+  <div class="eyebrow">Section 12</div>
+  <h1>Production evolution</h1>
+  <p>The prototype is intentionally honest about what comes next. None of the following are presented as working buttons; they are the roadmap.</p>
+  <div class="grid2">
+    <div class="card"><h3>Real-time fraud stack</h3><p>Device intelligence, graph linkage, and velocity signals feeding the routing score.</p></div>
+    <div class="card"><h3>Model governance</h3><p>If ML is introduced, with shadow scoring, fairness testing, and rollback.</p></div>
+    <div class="card"><h3>Explainability service</h3><p>Per-decision SHAP-style attributions behind the deterministic trace.</p></div>
+    <div class="card"><h3>Consent &amp; privacy</h3><p>Granular alt-data consent, retention, and right-to-explanation flows.</p></div>
+  </div>
+</section>
+
+<!-- 13. SUBMISSION -->
+<section class="page">
+  <div class="eyebrow">Section 13</div>
+  <h1>Submission contents</h1>
+  <table>
+    <tr><th>Artefact</th><th>Description</th></tr>
+    <tr><td>SE23UCSE065.pdf</td><td>This report.</td></tr>
+    <tr><td>SE23UCSE065.mp4</td><td>Recorded demonstration of the live workbench.</td></tr>
+    <tr><td>SE23UCSE065.zip</td><td>Full source (frontend + backend), excl. build artefacts.</td></tr>
+  </table>
+  <h3>What was built in this iteration</h3>
+  <ul>
+    <li>A premium, banking-grade workbench design system (light theme, Atlas-blue accent, no "AI-slop" tells).</li>
+    <li>Five connected views with live KPIs, charts, and an inline decision preview.</li>
+    <li>Command palette (⌘K) for fast navigation across applicants and views.</li>
+    <li>A guided application drawer that runs the deterministic decision end to end.</li>
+    <li>Evidence Intelligence with six proof types and semantic search.</li>
+    <li>Review &amp; Governance with a human review queue and filterable audit trail.</li>
+    <li>A clean header (brand + search only), a workbench "Start application" entry, and a resilient fallback dataset.</li>
+  </ul>
+  <div class="foot">NexCredit AI · Synchrony Hackathon 2026 · Problem Statement 3 — Contextual credit decisioning for New-to-Credit and thin-file applicants. Deterministic, explainable, human-in-the-loop.</div>
+</section>
+
+</body>
+</html>

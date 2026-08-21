@@ -14,7 +14,7 @@ const scoreRule = { required: true, type: 'number', min: 0, max: 100, message: '
 
 function ScoreBars({ values }) {
   return <Row gutter={16} className="score-bars">
-    {[['Mobile', values.mobileUsageScore], ['Transactions', values.transactionBehaviorScore], ['Social', values.socialSignalScore]].map(([label, score]) => <Col span={8} key={label}><span>{label}</span><Progress percent={score || 0} showInfo={false} strokeColor="#1a237e" /></Col>)}
+    {[['Mobile', values.mobileUsageScore], ['Transactions', values.transactionBehaviorScore], ['Social', values.socialSignalScore]].map(([label, score]) => <Col span={8} key={label}><span>{label}</span><Progress percent={score || 0} showInfo={false} strokeColor="#1f6feb" /></Col>)}
   </Row>;
 }
 
@@ -70,29 +70,44 @@ function CreditApplicationForm({ open, onClose, onCreated }) {
       errorNotification('Could not generate explanation', 'Confirm the backend is running and try again.');
     } finally { setExplaining(false); }
   };
-  return <Drawer title="New credit application" width={680} open={open} onClose={close} destroyOnClose>
+  return <Drawer title={null} width={700} open={open} onClose={close} destroyOnClose className="nx-app-drawer" styles={{ body: { padding: 0 } }}>
+    <div className="nx-app-drawer-head">
+      <span className="nx-sub">NEW APPLICATION</span>
+      <h2>Credit application</h2>
+      <p>Enter applicant details and alternative-data signals. NexCredit returns an explainable, reviewer-ready decision.</p>
+    </div>
+    <div className="nx-app-drawer-body">
     <Form form={form} layout="vertical" onFinish={submit} initialValues={{ employmentType: 'SALARIED' }}>
-      <Row gutter={16}>
-        <Col span={12}><Form.Item name="applicantName" label="Applicant name" rules={[{ required: true }]}><Input placeholder="Ravi Kumar" /></Form.Item></Col>
-        <Col span={12}><Form.Item name="age" label="Age" rules={[{ required: true, type: 'number', min: 18 }]}><InputNumber min={18} max={100} style={{ width: '100%' }} /></Form.Item></Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={12}><Form.Item name="annualIncome" label="Annual income (₹)" rules={[{ required: true, type: 'number', min: 0 }]}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
-        <Col span={12}><Form.Item name="employmentType" label="Employment type" rules={[{ required: true }]}><Select options={['SALARIED', 'SELF_EMPLOYED', 'GIG_WORKER', 'STUDENT'].map(value => ({ value, label: value.replace('_', ' ') }))} /></Form.Item></Col>
-      </Row>
-      <Row gutter={16}>
-        <Col span={8}><Form.Item name="mobileUsageScore" label="Mobile usage" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
-        <Col span={8}><Form.Item name="transactionBehaviorScore" label="Transactions" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
-        <Col span={8}><Form.Item name="socialSignalScore" label="Social signals" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
-      </Row>
-      <Form.Item noStyle shouldUpdate={(previous, current) => previous.mobileUsageScore !== current.mobileUsageScore || previous.transactionBehaviorScore !== current.transactionBehaviorScore || previous.socialSignalScore !== current.socialSignalScore}>
-        {({ getFieldsValue }) => <ScoreBars values={getFieldsValue()} />}
-      </Form.Item>
-      <Form.Item name="supportingDocument" label="Supporting document (optional)" valuePropName="fileList" getValueFromEvent={event => event?.fileList}>
-        <Upload beforeUpload={() => false} maxCount={1} accept=".pdf,.png,.jpg,.jpeg" onChange={({ file }) => setDocument(file.originFileObj || file)}><Button icon={<UploadOutlined />}>Attach income proof or bank statement</Button></Upload>
-      </Form.Item>
-      <DocumentScanPreview file={document} scanning={scanning} />
-      {documentEvidence && <section className="document-evidence" aria-label="Extracted document evidence"><span>EXTRACTED REVIEWER EVIDENCE</span><strong>{documentEvidence.extractionStatus.replaceAll('_', ' ')}</strong><p>{documentEvidence.textPreview || 'No readable text was detected. The original document remains available for human review.'}</p><small>This evidence is informational only; it does not automatically change the credit decision.</small></section>}
+      <section className="nx-form-section">
+        <h4 className="nx-form-title">Applicant profile</h4>
+        <Row gutter={16}>
+          <Col span={12}><Form.Item name="applicantName" label="Applicant name" rules={[{ required: true }]}><Input placeholder="Ravi Kumar" /></Form.Item></Col>
+          <Col span={12}><Form.Item name="age" label="Age" rules={[{ required: true, type: 'number', min: 18 }]}><InputNumber min={18} max={100} style={{ width: '100%' }} /></Form.Item></Col>
+        </Row>
+        <Row gutter={16}>
+          <Col span={12}><Form.Item name="annualIncome" label="Annual income (₹)" rules={[{ required: true, type: 'number', min: 0 }]}><InputNumber min={0} style={{ width: '100%' }} /></Form.Item></Col>
+          <Col span={12}><Form.Item name="employmentType" label="Employment type" rules={[{ required: true }]}><Select options={['SALARIED', 'SELF_EMPLOYED', 'GIG_WORKER', 'STUDENT'].map(value => ({ value, label: value.replace('_', ' ') }))} /></Form.Item></Col>
+        </Row>
+      </section>
+      <section className="nx-form-section">
+        <h4 className="nx-form-title">Alternative-data signals</h4>
+        <Row gutter={16}>
+          <Col span={8}><Form.Item name="mobileUsageScore" label="Mobile usage" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
+          <Col span={8}><Form.Item name="transactionBehaviorScore" label="Transactions" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
+          <Col span={8}><Form.Item name="socialSignalScore" label="Social signals" rules={[scoreRule]}><InputNumber min={0} max={100} style={{ width: '100%' }} /></Form.Item></Col>
+        </Row>
+        <Form.Item noStyle shouldUpdate={(previous, current) => previous.mobileUsageScore !== current.mobileUsageScore || previous.transactionBehaviorScore !== current.transactionBehaviorScore || previous.socialSignalScore !== current.socialSignalScore}>
+          {({ getFieldsValue }) => <ScoreBars values={getFieldsValue()} />}
+        </Form.Item>
+      </section>
+      <section className="nx-form-section">
+        <h4 className="nx-form-title">Supporting evidence</h4>
+        <Form.Item name="supportingDocument" label="Supporting document (optional)" valuePropName="fileList" getValueFromEvent={event => event?.fileList}>
+          <Upload beforeUpload={() => false} maxCount={1} accept=".pdf,.png,.jpg,.jpeg" onChange={({ file }) => setDocument(file.originFileObj || file)}><Button icon={<UploadOutlined />}>Attach income proof or bank statement</Button></Upload>
+        </Form.Item>
+        <DocumentScanPreview file={document} scanning={scanning} />
+        {documentEvidence && <section className="document-evidence" aria-label="Extracted document evidence"><span>EXTRACTED REVIEWER EVIDENCE</span><strong>{documentEvidence.extractionStatus.replaceAll('_', ' ')}</strong><p>{documentEvidence.textPreview || 'No readable text was detected. The original document remains available for human review.'}</p><small>This evidence is informational only; it does not automatically change the credit decision.</small></section>}
+      </section>
       <AgentPipeline activeStep={activeStep} complete={activeStep === 5} decision={decision} />
       <DecisionCard decision={decision} />
       {decision && <section className="explain-decision" aria-label="Explain decision">
@@ -111,6 +126,7 @@ function CreditApplicationForm({ open, onClose, onCreated }) {
       {decision && <><TraditionalComparison decision={decision} application={form.getFieldsValue()} /><Row gutter={[16, 16]}><Col xs={24} md={12}><FraudHeatmap application={decision} /></Col><Col xs={24} md={12}><RiskRadar application={{ ...form.getFieldsValue(), ...decision }} /></Col></Row></>}
       <Button type="primary" htmlType="submit" loading={submitting} block>Analyze application</Button>
     </Form>
+    </div>
   </Drawer>;
 }
 export default CreditApplicationForm;
