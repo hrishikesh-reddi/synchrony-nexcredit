@@ -67,7 +67,7 @@ NexCredit-AI/
 │   ├── main/
 │   │   ├── java/com/synchrony/nexcredit/   # Backend source (package com.synchrony.nexcredit)
 │   │   └── resources/application.properties # Datasource, security, AI, vector config
-│   ├── test/java/com/synchrony/nexcredit/  # JUnit 5 tests (13, all green)
+│   ├── test/java/com/synchrony/nexcredit/  # JUnit 5 tests (14, all green)
 │   └── frontend/                          # React app (src/frontend/src)
 └── (gitignored) node_modules/ target/ build/ uploads/ .env
 ```
@@ -152,10 +152,11 @@ NexCredit-AI/
 | Path | Purpose |
 | --- | --- |
 | `package.json` / `package-lock.json` | React 18 and Ant Design 5 deps; `npm start` (dev, proxy to :8081) / `npm run build`. |
-| `.env` | `REACT_APP_API_BASE_URL=http://localhost:8080`. |
+| `.env` | Local API base URL: `REACT_APP_API_BASE_URL=http://localhost:8081`. |
 | `public/` | `index.html`, favicon, manifest, logos (CRA default assets). |
 | `src/index.js` | React entry; mounts `<App/>`, loads styles, reportWebVitals. |
-| `src/App.js` | Dashboard composition root: login dialog, panels (new application, review queue, audit trail), routing. Auto-logs in as underwriter. |
+| `src/App.js` | Workbench composition root: login, application portfolio, review queue, audit trail, and section navigation. Auto-logs in as the demo underwriter. |
+| `src/OperationsBriefing.js` | Finance-grade operating-state ledger and expandable, explicitly disclosed production-orchestration concept preview. |
 | `src/App.css` / `src/index.css` | Global and component styles. |
 | `src/Client.js` | API client: attaches JWT, wraps `login`, `analyze`, `getApplications`, `getPendingReview`, `uploadDocument`, `searchEvidence`, `explainDecision`. |
 | `src/CreditApplicationForm.js` | New-application form; submits for analysis; **Explain** button  to  LLM explanation. |
