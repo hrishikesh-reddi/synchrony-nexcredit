@@ -1,26 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Col, Empty, Input, Layout, Modal, Row, Spin, Table, Tag, Typography } from 'antd';
-import { ApiOutlined, AppstoreOutlined, ArrowRightOutlined, AuditOutlined, CheckCircleFilled, FileSearchOutlined, LockOutlined, PlusOutlined, SafetyCertificateOutlined, ThunderboltOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Card, Input, Layout, Modal, Tag, Typography } from 'antd';
+import { ApiOutlined, AppstoreOutlined, ArrowRightOutlined, AuditOutlined, CheckCircleFilled, FileSearchOutlined, LockOutlined, PlusOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons';
 import { getAuditLogs, getCreditApplications, getHealth, login, reviewCreditApplication, setAuthToken } from './Client';
 import { errorNotification } from './Notification';
 import CreditApplicationForm from './CreditApplicationForm';
-import ImpactMetrics from './ImpactMetrics';
-import TraditionalComparison from './TraditionalComparison';
-import EvidenceSearchPanel from './EvidenceSearchPanel';
-import OperationsBriefing from './OperationsBriefing';
+import WorkspacePages from './WorkspacePages';
 import './App.css';
 
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
-const tagColor = decision => ({ APPROVED: 'green', REJECTED: 'red', PENDING: 'gold' }[decision] || 'default');
-const columns = [
-  { title: 'Applicant', dataIndex: 'applicantName', render: name => <strong>{name}</strong> },
-  { title: 'Age', dataIndex: 'age' },
-  { title: 'Income', dataIndex: 'annualIncome', render: income => `₹${Number(income || 0).toLocaleString('en-IN')}` },
-  { title: 'Decision', dataIndex: 'creditDecision', render: decision => <Tag color={tagColor(decision)}>{decision || 'PENDING'}</Tag> },
-  { title: 'Confidence', dataIndex: 'confidenceScore', render: score => score == null ? ' ' : `${score}%` },
-  { title: 'Fraud risk', dataIndex: 'fraudRisk', render: risk => <Tag>{risk || ' '}</Tag> },
-];
 
 function LandingPage({ onOpenWorkbench, onStartApplication }) {
   return <Layout className="app-shell landing-shell">
@@ -67,7 +55,7 @@ function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
-  const [activeNavigation, setActiveNavigation] = useState('Dashboard');
+  const [activeNavigation, setActiveNavigation] = useState('Command Center');
   const [authUser, setAuthUser] = useState(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [apiStatus, setApiStatus] = useState('checking');
@@ -96,21 +84,14 @@ function App() {
     .then(() => { loadApplications(); loadAuditLogs(); })
     .catch(() => errorNotification('Review could not be saved', 'Confirm that the backend is running and try again.'));
   const startApplication = () => { setWorkspaceOpen(true); setDrawerOpen(true); };
-  const navigateTo = (label, sectionId) => {
+  const navigateTo = label => {
     setActiveNavigation(label);
-    if (sectionId) document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   if (!workspaceOpen) return <><LandingPage onOpenWorkbench={() => setWorkspaceOpen(true)} onStartApplication={startApplication} /><CreditApplicationForm open={drawerOpen} onClose={() => setDrawerOpen(false)} onCreated={loadApplications} /><LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)} onLogin={setAuthUser} /></>;
   return <Layout className="app-shell">
-    <Header className="topbar workspace-topbar"><div className="workspace-brand"><Button type="text" className="brand brand-home" onClick={() => { setWorkspaceOpen(false); setActiveNavigation('Dashboard'); }}><SafetyCertificateOutlined /> NexCredit <span>AI</span></Button><span className="product-context">UNDERWRITING</span></div><nav className="workspace-tabs" aria-label="Workbench navigation"><Button type="text" className={activeNavigation === 'Dashboard' ? 'active' : ''} icon={<AppstoreOutlined />} onClick={() => navigateTo('Dashboard', 'dashboard-overview')}>Dashboard</Button><Button type="text" className={activeNavigation === 'Applications' ? 'active' : ''} icon={<FileSearchOutlined />} onClick={() => navigateTo('Applications', 'applications')}>Applications</Button><Button type="text" className={activeNavigation === 'Review queue' ? 'active' : ''} icon={<SafetyCertificateOutlined />} onClick={() => navigateTo('Review queue', 'review-queue')}>Review queue {pending > 0 && <b>{pending}</b>}</Button><Button type="text" className={activeNavigation === 'Audit trail' ? 'active' : ''} icon={<AuditOutlined />} onClick={() => navigateTo('Audit trail', 'audit-log')}>Audit trail</Button></nav><div className="workspace-controls"><span className={`service-status ${apiStatus}`}><i /> API {apiStatus}</span><Button className="new-app-button" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>New application</Button>{authUser ? <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>{authUser.username} <Tag color="blue">{authUser.roles?.[0] || 'USER'}</Tag></Button> : <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>Sign in</Button>}</div></Header>
+    <Header className="topbar workspace-topbar"><div className="workspace-brand"><Button type="text" className="brand brand-home" onClick={() => { setWorkspaceOpen(false); setActiveNavigation('Command Center'); }}><SafetyCertificateOutlined /> NexCredit <span>AI</span></Button><span className="product-context">CREDIT OPERATIONS</span></div><nav className="workspace-tabs" aria-label="Workbench navigation"><Button type="text" className={activeNavigation === 'Command Center' ? 'active' : ''} icon={<AppstoreOutlined />} onClick={() => navigateTo('Command Center')}>Command Center</Button><Button type="text" className={activeNavigation === 'Underwriting Studio' ? 'active' : ''} icon={<FileSearchOutlined />} onClick={() => navigateTo('Underwriting Studio')}>Underwriting Studio</Button><Button type="text" className={activeNavigation === 'Evidence Intelligence' ? 'active' : ''} icon={<FileSearchOutlined />} onClick={() => navigateTo('Evidence Intelligence')}>Evidence Intelligence</Button><Button type="text" className={activeNavigation === 'Review & Governance' ? 'active' : ''} icon={<SafetyCertificateOutlined />} onClick={() => navigateTo('Review & Governance')}>Review & Governance {pending > 0 && <b>{pending}</b>}</Button><Button type="text" className={activeNavigation === 'Platform Architecture' ? 'active' : ''} icon={<AuditOutlined />} onClick={() => navigateTo('Platform Architecture')}>Platform Architecture</Button></nav><div className="workspace-controls"><span className={`service-status ${apiStatus}`}><i /> API {apiStatus}</span><Button className="new-app-button" icon={<PlusOutlined />} onClick={() => setDrawerOpen(true)}>New application</Button>{authUser ? <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>{authUser.username} <Tag color="blue">{authUser.roles?.[0] || 'USER'}</Tag></Button> : <Button icon={<UserOutlined />} onClick={() => setLoginOpen(true)}>Sign in</Button>}</div></Header>
     <Content className="content-wrap">
-      <OperationsBriefing apiStatus={apiStatus} authUser={authUser} onNavigate={navigateTo} />
-      <Alert className="responsible-ai" message="Responsible AI guardrail active" description="Low-confidence or policy-sensitive cases are routed to a human reviewer before any final action." type="info" showIcon />
-      <section className="workbench-grid"><Card id="applications" className="portfolio-card" title="Application portfolio" extra={<Button onClick={loadApplications}>Refresh</Button>}>{loading ? <div className="loading"><Spin /></div> : applications.length ? <Table dataSource={applications} columns={columns} rowKey={app => app.id} pagination={{ pageSize: 5 }} /> : <Empty description="No applications yet. Create one to run an underwriting decision." />}</Card><Card className="trace-card" title={<><ThunderboltOutlined /> Decision trace</>} extra={<Tag color="blue">LIVE</Tag>}><p>Every submitted application moves through a controlled, explainable sequence.</p>{['Signal intake', 'Creditworthiness', 'Fraud screen', 'Decision policy', 'Audit record'].map((stage, index) => <div className="trace-step" key={stage}><b>0{index + 1}</b><span>{stage}<small>{index === 4 ? 'Linked evidence record' : 'Ready for next case'}</small></span><i /></div>)}</Card><Card className="pulse-card" title="Underwriting pulse"><div className="pulse-number">{applications.length}</div><p>applications in the active portfolio</p><div className="pulse-line"><span style={{ width: `${applications.length ? Math.round(approved / applications.length * 100) : 0}%` }} /></div><div className="pulse-detail"><span>Auto-approved <strong>{approved}</strong></span><span>Needs review <strong>{pending}</strong></span></div></Card></section>
-      <ImpactMetrics applications={applications} />
-      <TraditionalComparison />
-      <EvidenceSearchPanel />
-      <Row gutter={[16,16]} className="operations-row"><Col xs={24} lg={12}><Card id="review-queue" title="Human review queue" extra={<Tag color="gold">{pending} pending</Tag>}>{applications.filter(app => app.reviewStatus === 'PENDING_REVIEW').length ? applications.filter(app => app.reviewStatus === 'PENDING_REVIEW').map(app => <div className="queue-item" key={app.id}><strong>{app.applicantName}</strong><span>{app.confidenceScore}% confidence · {app.fraudRisk} risk</span><div className="review-actions"><Button size="small" onClick={() => completeReview(app, 'APPROVED')}>Approve</Button><Button danger size="small" onClick={() => completeReview(app, 'REJECTED')}>Reject</Button></div></div>) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No cases awaiting review" />}</Card></Col><Col xs={24} lg={12}><Card id="audit-log" title="Decision audit trail" extra={<Button size="small" onClick={loadAuditLogs}>Refresh</Button>}>{auditLogs.length ? auditLogs.slice(0,5).map(log => <div className="queue-item" key={log.id}><strong>Application #{log.applicationId || 'legacy'}</strong><span>{log.decision} · {log.reasoning}</span><Tag>Audited</Tag></div>) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No audit entries loaded" />}</Card></Col></Row>
+      <WorkspacePages activePage={activeNavigation} applications={applications} auditLogs={auditLogs} apiStatus={apiStatus} authUser={authUser} loading={loading} approved={approved} pending={pending} onOpenApplication={() => setDrawerOpen(true)} onRefresh={loadApplications} onRefreshAudit={loadAuditLogs} onReview={completeReview} onNavigate={navigateTo} />
     </Content>
     <Footer className="footer">NexCredit AI · Synchrony Hackathon 2026</Footer>
     <CreditApplicationForm open={drawerOpen} onClose={() => setDrawerOpen(false)} onCreated={loadApplications} />

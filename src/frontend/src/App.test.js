@@ -25,12 +25,18 @@ test('introduces NexCredit before opening the live workbench', async () => {
   expect(screen.queryByText(/Priya Sharma/i)).not.toBeInTheDocument();
   expect(await screen.findByText(/Open live workbench/i)).toBeInTheDocument();
   fireEvent.click(screen.getByText(/Open live workbench/i));
-  expect(await screen.findByRole('heading', { name: /Credit decision operations/i })).toBeInTheDocument();
-  expect(screen.getByText(/Concept preview/i)).toBeInTheDocument();
-  expect(screen.getByText('Deterministic policy', { selector: 'strong' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: /Portfolio command center/i })).toBeInTheDocument();
   expect(screen.queryByText(/Good morning, analyst/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/NOT LIVE/i)).not.toBeInTheDocument();
   expect(screen.getByRole('navigation', { name: /Workbench navigation/i })).toBeInTheDocument();
-  expect(screen.getByText('Applications', { selector: 'span' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /Underwriting Studio/i }));
+  expect(await screen.findByRole('heading', { name: /Underwriting Studio/i })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /Evidence Intelligence/i }));
+  expect(await screen.findByRole('heading', { name: /Evidence Intelligence/i })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /Review & Governance/i }));
+  expect(await screen.findByRole('heading', { name: /Review & Governance/i })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /Platform Architecture/i }));
+  expect(await screen.findByRole('heading', { name: /Platform Architecture/i })).toBeInTheDocument();
   expect(screen.getByText(/API live/i)).toBeInTheDocument();
 });
 

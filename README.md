@@ -18,7 +18,7 @@ NexCredit AI shows how permitted alternative-data signals (mobile engagement, tr
 ### Landing page
 ![Landing page](docs/screenshots/01-landing.png)
 
-### Underwriter workbench (dashboard / application portfolio)
+### Multi-page credit operations workspace
 ![Underwriter workbench](docs/screenshots/03-workbench.png)
 
 ### New credit application form
@@ -155,8 +155,8 @@ NexCredit-AI/
 | `.env` | Local API base URL: `REACT_APP_API_BASE_URL=http://localhost:8081`. |
 | `public/` | `index.html`, favicon, manifest, logos (CRA default assets). |
 | `src/index.js` | React entry; mounts `<App/>`, loads styles, reportWebVitals. |
-| `src/App.js` | Workbench composition root: login, application portfolio, review queue, audit trail, and section navigation. Auto-logs in as the demo underwriter. |
-| `src/OperationsBriefing.js` | Finance-grade operating-state ledger and expandable, explicitly disclosed production-orchestration concept preview. |
+| `src/App.js` | Application shell: landing page, authentication, application drawer, API health, and five-page workspace navigation. Auto-logs in as the demo underwriter. |
+| `src/WorkspacePages.js` | Finance-grade multi-page workspace: Command Center, Underwriting Studio, Evidence Intelligence, Review & Governance, and Platform Architecture. Real actions reuse the existing backend APIs. |
 | `src/App.css` / `src/index.css` | Global and component styles. |
 | `src/Client.js` | API client: attaches JWT, wraps `login`, `analyze`, `getApplications`, `getPendingReview`, `uploadDocument`, `searchEvidence`, `explainDecision`. |
 | `src/CreditApplicationForm.js` | New-application form; submits for analysis; **Explain** button  to  LLM explanation. |
