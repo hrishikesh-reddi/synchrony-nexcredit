@@ -12,7 +12,7 @@
 
 - Keep the backend running on port 8081 and the frontend on port 3001.
 - Open the landing page and close unrelated tabs or notifications.
-- Keep one plain-text supporting document ready. PostgreSQL is required; pgvector is optional because evidence search has a text fallback.
+- Keep `docs/demo-evidence.txt` ready for upload. It contains synthetic data only. PostgreSQL is required; pgvector is optional because evidence search has a text fallback.
 - Do not show terminal tokens, personal messages, environment variables, or API keys.
 
 ## 1. Opening and problem (0:00-0:30)
@@ -77,7 +77,7 @@ The active underwriter role can add a final decision and reviewer note. This dem
 
 ## 5. Document evidence and resilient search (2:50-3:35)
 
-**On screen:** Upload the prepared text document, show the extracted evidence preview, and search for `alternative data underwriting` in the Evidence Search panel.
+**On screen:** Upload `docs/demo-evidence.txt`, show the extracted evidence preview, and search for `alternative data underwriting` in the Evidence Search panel.
 
 **Say:**
 
