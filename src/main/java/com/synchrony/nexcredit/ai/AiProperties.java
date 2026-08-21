@@ -8,10 +8,12 @@ import org.springframework.stereotype.Component;
 public class AiProperties {
 
     private boolean enabled = false;
+    private boolean mlEnabled = false;
     private boolean vectorEnabled = true;
-    private String baseUrl = "https://api.openai.com/v1";
+    private String baseUrl = "https://api.groq.com/openai/v1";
+    private String embeddingBaseUrl = "https://api.groq.com/openai/v1";
     private String apiKey = "";
-    private String chatModel = "gpt-4o-mini";
+    private String chatModel = "llama-3.3-70b-versatile";
     private String embeddingModel = "text-embedding-3-small";
     private int embeddingDim = 1536;
 
@@ -31,12 +33,28 @@ public class AiProperties {
         this.vectorEnabled = vectorEnabled;
     }
 
+    public boolean isMlEnabled() {
+        return mlEnabled;
+    }
+
+    public void setMlEnabled(boolean mlEnabled) {
+        this.mlEnabled = mlEnabled;
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
 
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
+    }
+
+    public String getEmbeddingBaseUrl() {
+        return embeddingBaseUrl;
+    }
+
+    public void setEmbeddingBaseUrl(String embeddingBaseUrl) {
+        this.embeddingBaseUrl = embeddingBaseUrl;
     }
 
     public String getApiKey() {

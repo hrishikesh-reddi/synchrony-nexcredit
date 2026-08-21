@@ -5,18 +5,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Value("${nexcredit.cors.allowed-origins:http://localhost:3000}")
+    private List<String> allowedOrigins;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -35,14 +40,10 @@ public class SecurityConfig {
                     "/actuator/health",
                     "/error",
                     "/api/credit/analyze",
-                    "/api/credit/applications",
-                    "/api/credit/pending-review",
-                    "/api/credit/evidence/**",
-                    "/api/credit/explanation",
-                    "/api/audit/**"
+                    "/api/credit/explanation"
                 ).permitAll()
-                .requestMatchers("/api/credit/review/**", "/api/credit/upload/**")
-                    .hasAnyRole("UNDERWRITER", "ADMIN")
+                .requestMatchers("/api/credit/**", "/api/audit/**")
+                    .hasAnyRole("UNDERWRITER", "ADMIN", "APPLICANT")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -52,7 +53,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

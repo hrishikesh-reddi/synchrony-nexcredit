@@ -98,6 +98,8 @@ function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
   useEffect(() => {
+    // DEMO-ONLY: auto-login with the seeded underwriter account so the workbench
+    // is usable without a manual sign-in during the hackathon demo. Not for production.
     login('underwriter', 'underwriter123')
       .then(response => setAuthToken(response.token))
       .catch(() => {});

@@ -23,6 +23,12 @@ public class AuditLog {
     private String decision;
     @Column(length = 1000)
     private String reasoning;
+    @Column
+    private String fraudRisk;
+    @Column(length = 4000)
+    private String modelContributionsJson;
+    @Column
+    private String modelVersion;
     @Column(nullable = false, updatable = false)
     private Timestamp timestamp;
 
@@ -32,6 +38,16 @@ public class AuditLog {
         this.applicationId = applicationId;
         this.decision = decision;
         this.reasoning = reasoning;
+    }
+
+    public AuditLog(Long applicationId, String decision, String reasoning, String fraudRisk,
+                    String modelContributionsJson, String modelVersion) {
+        this.applicationId = applicationId;
+        this.decision = decision;
+        this.reasoning = reasoning;
+        this.fraudRisk = fraudRisk;
+        this.modelContributionsJson = modelContributionsJson;
+        this.modelVersion = modelVersion;
     }
 
     @PrePersist
@@ -49,6 +65,12 @@ public class AuditLog {
     public void setDecision(String decision) { this.decision = decision; }
     public String getReasoning() { return reasoning; }
     public void setReasoning(String reasoning) { this.reasoning = reasoning; }
+    public String getFraudRisk() { return fraudRisk; }
+    public void setFraudRisk(String fraudRisk) { this.fraudRisk = fraudRisk; }
+    public String getModelContributionsJson() { return modelContributionsJson; }
+    public void setModelContributionsJson(String modelContributionsJson) { this.modelContributionsJson = modelContributionsJson; }
+    public String getModelVersion() { return modelVersion; }
+    public void setModelVersion(String modelVersion) { this.modelVersion = modelVersion; }
     public Timestamp getTimestamp() { return timestamp; }
     public void setTimestamp(Timestamp timestamp) { this.timestamp = timestamp; }
 }

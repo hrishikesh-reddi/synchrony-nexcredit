@@ -1,10 +1,13 @@
 package com.synchrony.nexcredit.credit;
 
+import com.synchrony.nexcredit.ai.MlRiskModel;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CreditUnderwritingBiasGuardrailTest {
 
@@ -22,7 +25,9 @@ class CreditUnderwritingBiasGuardrailTest {
         org.mockito.Mockito.when(applications.save(org.mockito.ArgumentMatchers.any(CreditApplication.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         AuditLogRepository auditLogs = org.mockito.Mockito.mock(AuditLogRepository.class);
-        CreditDecision decision = new CreditUnderwritingService(applications, new AuditLogService(auditLogs)).analyze(application);
+        MlRiskModel mlRiskModel = mock(MlRiskModel.class);
+        when(mlRiskModel.isAvailable()).thenReturn(false);
+        CreditDecision decision = new CreditUnderwritingService(applications, new AuditLogService(auditLogs), mlRiskModel).analyze(application);
 
         assertThat(decision.getCreditDecision()).isEqualTo("PENDING");
         assertThat(decision.getConfidenceScore()).isEqualTo(60);

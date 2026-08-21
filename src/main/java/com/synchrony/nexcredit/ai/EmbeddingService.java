@@ -20,7 +20,7 @@ public class EmbeddingService {
     public EmbeddingService(AiProperties props) {
         this.props = props;
         this.restClient = RestClient.builder()
-                .baseUrl(props.getBaseUrl())
+                .baseUrl(props.getEmbeddingBaseUrl())
                 .defaultHeader("Authorization", "Bearer " + (props.getApiKey() == null ? "" : props.getApiKey()))
                 .build();
     }

@@ -1,10 +1,13 @@
 package com.synchrony.nexcredit.credit;
 
+import com.synchrony.nexcredit.ai.MlRiskModel;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CreditUnderwritingServiceTest {
 
@@ -26,7 +29,9 @@ class CreditUnderwritingServiceTest {
                     saved.setId(42L);
                     return saved;
                 });
-        CreditDecision decision = new CreditUnderwritingService(applications, auditLogService).analyze(application);
+        MlRiskModel mlRiskModel = mock(MlRiskModel.class);
+        when(mlRiskModel.isAvailable()).thenReturn(false);
+        CreditDecision decision = new CreditUnderwritingService(applications, auditLogService, mlRiskModel).analyze(application);
 
         assertThat(decision.getCreditDecision()).isEqualTo("APPROVED");
         assertThat(decision.getConfidenceScore()).isEqualTo(88);

@@ -6,7 +6,7 @@ import { errorNotification } from './Notification';
 
 const { Text, Paragraph } = Typography;
 
-function EvidenceSearchPanel() {
+function EvidenceSearchPanel({ proofType }) {
   const [query, setQuery] = useState('income proof');
   const [k, setK] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -35,6 +35,7 @@ function EvidenceSearchPanel() {
       <Button type="primary" loading={loading} onClick={runSearch}>Search</Button>
     </Input.Group>
     {error && <Alert type="error" showIcon message={error} />}
+    {proofType && <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 10 }}>Filtering the evidence corpus for {proofType.replaceAll('_', ' ')} proof.</Text>}
     {result && !error && (
       result.results?.length ? (
         <List
@@ -50,6 +51,11 @@ function EvidenceSearchPanel() {
           </List.Item>}
         />
       ) : <Empty description="No matching evidence returned" />
+    )}
+    {result && !result.semanticSearchAvailable && (
+      <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 12 }}>
+        Lexical match (embeddings disabled)
+      </Text>
     )}
   </Card>;
 }

@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Table, Typography, Button, Input, Timeline, message } from 'antd';
-import { SearchOutlined, CheckCircleTwoTone, WarningTwoTone, SafetyCertificateOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { SearchOutlined, CheckCircleTwoTone, WarningTwoTone, ArrowRightOutlined } from '@ant-design/icons';
 import RiskRadar from './RiskRadar';
+import EvidenceSearchPanel from './EvidenceSearchPanel';
 import { KpiCard, Donut, FilterChips, LiveStream, ActivityFeed, ProofTypeGrid, ReviewQueue, TrendChart } from './AtlasUI';
 
 const { Text } = Typography;
@@ -21,39 +22,6 @@ const PROOF_TYPES = [
   { key: 'employment', title: 'Employment letter', icon: '✉' },
   { key: 'tax', title: 'Tax return', icon: '%' },
 ];
-
-const EVIDENCE = {
-  income: {
-    doc: 'income_proof_aarav_mar25.pdf',
-    fields: [['Document type', 'Salary slip'], ['Employer', 'SwiftCart Logistics'], ['Gross monthly', '₹42,000'], ['Verified', 'Yes'], ['Confidence', '94%']],
-    chunks: ['Payslip confirms gross monthly income of ₹42,000 for the last 6 months.', 'Employer PAN matches GST registration on file.', 'Income stability score derived from 6-month continuity.'],
-  },
-  bank: {
-    doc: 'bank_statement_hdfc_q1.pdf',
-    fields: [['Document type', 'Bank statement'], ['Bank', 'HDFC'], ['Avg monthly credit', '₹48,300'], ['Returned cheques', '0'], ['Confidence', '91%']],
-    chunks: ['Statement shows consistent salary credits across 3 months.', 'No overdraft or returned-cheque events in window.', 'Spend pattern supports stated income tier.'],
-  },
-  identity: {
-    doc: 'kyc_aadhaar_verified.xml',
-    fields: [['Document type', 'Aadhaar'], ['KYC', 'Verified'], ['Name match', '100%'], ['Masked ID', 'XXXX-XXXX-4821'], ['Confidence', '99%']],
-    chunks: ['Aadhaar eKYC returned a positive match to applicant name.', 'Biometric OTP step completed successfully.', 'No duplicate-identity hit in registry check.'],
-  },
-  utility: {
-    doc: 'electricity_bill_mar.pdf',
-    fields: [['Document type', 'Utility bill'], ['Provider', 'TSSPDCL'], ['Address', 'Hyderabad'], ['Confidence', '88%']],
-    chunks: ['Bill address matches stated residence in Hyderabad.', 'Paid status within last 30 days.', 'Used as soft address-stability signal only.'],
-  },
-  employment: {
-    doc: 'employment_letter_swiftcart.pdf',
-    fields: [['Document type', 'Offer letter'], ['Role', 'Delivery partner'], ['Tenure', '11 months'], ['Confidence', '90%']],
-    chunks: ['Letter confirms 11-month engagement as delivery partner.', 'Role class maps to GIG_WORKER employment type.', 'Used to corroborate income-proof employer.'],
-  },
-  tax: {
-    doc: 'itr_2024_form16.pdf',
-    fields: [['Document type', 'ITR / Form 16'], ['FY', '2023-24'], ['Reported income', '₹5.1L'], ['Confidence', '92%']],
-    chunks: ['Form 16 reports annual income of ₹5.1L.', 'TDS entries reconcile with bank credits.', 'Strongest corroborating signal for creditworthiness.'],
-  },
-};
 
 const NAV = [
   ['command', 'Command Center'],
@@ -106,7 +74,6 @@ export default function WorkspacePages({ applications = [], auditLogs = [], acti
   }), [auditLogs, applications]);
 
   const reviewCases = useMemo(() => applications.filter(a => a.reviewStatus === 'PENDING'), [applications]);
-  const ev = EVIDENCE[proof];
 
   const columns = [
     { title: 'Applicant', dataIndex: 'applicantName', key: 'applicantName', render: (v, r) => <span className="nx-rowlink" role="button" tabIndex={0} onClick={() => { setPreviewId(r.id); onOpenDetail && onOpenDetail(r); }} onKeyDown={e => { if (e.key === 'Enter') { setPreviewId(r.id); onOpenDetail && onOpenDetail(r); } }}>{v}</span> },
@@ -247,36 +214,7 @@ export default function WorkspacePages({ applications = [], auditLogs = [], acti
             <div className="nx-card-body"><ProofTypeGrid types={PROOF_TYPES} active={proof} onSelect={setProof} /></div>
           </section>
 
-          <div className="nx-grid-2">
-            <section className="nx-card">
-              <header className="nx-card-head"><h3>Extracted evidence</h3><span className="nx-sub">{ev.doc}</span></header>
-              <div className="nx-card-body">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
-                  {ev.fields.map(([k, v]) => <div key={k} style={{ padding: 10, background: 'var(--nx-surface-2)', borderRadius: 10, border: '1px solid var(--nx-line)' }}>
-                    <div className="nx-muted" style={{ fontSize: 11 }}>{k}</div><div style={{ color: 'var(--nx-ink)', fontWeight: 650, fontSize: 13 }}>{v}</div>
-                  </div>)}
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <SafetyCertificateOutlined style={{ color: 'var(--nx-pos)' }} />
-                  <Text style={{ fontSize: 13 }}>Document verified against issued certificate; confidence {ev.fields.find(f => f[0] === 'Confidence')?.[1]}.</Text>
-                </div>
-              </div>
-            </section>
-
-            <section className="nx-card">
-              <header className="nx-card-head"><h3>Semantic search</h3></header>
-              <div className="nx-card-body">
-                <Input prefix={<SearchOutlined />} placeholder="Search evidence, e.g. income continuity" value={evQ} onChange={e => setEvQ(e.target.value)} allowClear />
-                <div style={{ height: 14 }} />
-                <div style={{ display: 'grid', gap: 10 }}>
-                  {ev.chunks.filter(c => !evQ || c.toLowerCase().includes(evQ.toLowerCase())).map((c, i) => <div key={i} style={{ padding: 12, border: '1px solid var(--nx-line)', borderRadius: 10, background: 'var(--nx-surface-2)' }}>
-                    <div className="nx-mono" style={{ fontSize: 10.5, color: 'var(--nx-muted)' }}>{ev.doc} · chunk {i + 1}</div>
-                    <div style={{ fontSize: 13, color: 'var(--nx-ink)' }}>{c}</div>
-                  </div>)}
-                </div>
-              </div>
-            </section>
-          </div>
+          <EvidenceSearchPanel proofType={proof} />
         </div>
       )}
 

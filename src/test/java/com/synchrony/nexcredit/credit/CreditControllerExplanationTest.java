@@ -2,6 +2,7 @@ package com.synchrony.nexcredit.credit;
 
 import com.synchrony.nexcredit.ai.ExplanationResponse;
 import com.synchrony.nexcredit.ai.ExplanationService;
+import com.synchrony.nexcredit.ai.MlRiskModel;
 import com.synchrony.nexcredit.ai.VectorStore;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,9 @@ class CreditControllerExplanationTest {
             saved.setId(99L);
             return saved;
         });
-        CreditUnderwritingService underwritingService = new CreditUnderwritingService(applications, auditLogService);
+        MlRiskModel mlRiskModel = mock(MlRiskModel.class);
+        when(mlRiskModel.isAvailable()).thenReturn(false);
+        CreditUnderwritingService underwritingService = new CreditUnderwritingService(applications, auditLogService, mlRiskModel);
         ExplanationService explanationService = mock(ExplanationService.class);
         when(explanationService.explain(any(CreditApplication.class), any(CreditDecision.class)))
                 .thenReturn(new ExplanationResponse("Transparent rationale", false, "Reviewer support only"));

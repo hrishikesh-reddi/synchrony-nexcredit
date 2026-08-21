@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
@@ -29,6 +30,9 @@ public class DocumentEvidence {
 
     @Column(length = 4000)
     private String textPreview;
+
+    @Column
+    private BigDecimal extractedAnnualIncome;
 
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
@@ -54,5 +58,7 @@ public class DocumentEvidence {
     public String getOriginalFileName() { return originalFileName; }
     public String getExtractionStatus() { return extractionStatus; }
     public String getTextPreview() { return textPreview; }
+    public BigDecimal getExtractedAnnualIncome() { return extractedAnnualIncome; }
+    public void setExtractedAnnualIncome(BigDecimal extractedAnnualIncome) { this.extractedAnnualIncome = extractedAnnualIncome; }
     public Timestamp getCreatedAt() { return createdAt; }
 }
